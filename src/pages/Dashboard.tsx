@@ -210,6 +210,10 @@ const Dashboard = () => {
               <Users className="h-4 w-4" />
               المستخدمين
             </TabsTrigger>
+            <TabsTrigger value="customers" className="gap-2">
+              <Users className="h-4 w-4" />
+              العملاء
+            </TabsTrigger>
             <TabsTrigger value="requests" className="gap-2">
               <Calendar className="h-4 w-4" />
               طلبات الحجز
@@ -358,6 +362,11 @@ const Dashboard = () => {
           {/* المستخدمين */}
           <TabsContent value="users">
             <UsersTable />
+          </TabsContent>
+
+          {/* العملاء */}
+          <TabsContent value="customers">
+            <CustomersTable />
           </TabsContent>
 
           {/* طلبات الحجز */}
