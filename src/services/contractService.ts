@@ -92,18 +92,21 @@ export async function getContracts() {
 // جلب عقد مع اللوحات المرتبطة به
 export async function getContractWithBillboards(contractId: string): Promise<any> {
   try {
+    const numId = Number(contractId);
+    const queryId: any = Number.isFinite(numId) && !isNaN(numId) ? numId : contractId;
     let contractResult: any = await (supabase as any)
       .from('Contract')
       .select('*')
-      .eq('Contract_Number', contractId)
-      .single();
+      .eq('Contract_Number', queryId)
+      .maybeSingle();
 
-    if (contractResult.error) {
+    if ((contractResult.error || !contractResult.data) && String(contractId) !== String(queryId)) {
+      // محاولة أخيرة على النص الأصلي إن كانت القيم مختلفة تماماً
       contractResult = await (supabase as any)
         .from('Contract')
         .select('*')
-        .eq('"Contract Number"', contractId)
-        .single();
+        .eq('Contract_Number', contractId)
+        .maybeSingle();
     }
 
     if (contractResult.error) throw contractResult.error;
@@ -149,23 +152,17 @@ export async function getAvailableBillboards() {
 
 // تحديث عقد
 export async function updateContract(contractId: string, updates: any) {
-  let result: any = await (supabase as any)
+  const numId = Number(contractId);
+  const queryId: any = Number.isFinite(numId) && !isNaN(numId) ? numId : contractId;
+  const result: any = await (supabase as any)
     .from('Contract')
     .update(updates)
-    .eq('Contract_Number', contractId)
-    .select()
-    .single();
-
-  if (result.error) {
-    result = await (supabase as any)
-      .from('Contract')
-      .update(updates)
-      .eq('"Contract Number"', contractId)
-      .select()
-      .single();
-  }
+    .eq('Contract_Number', queryId)
+    .select('*')
+    .maybeSingle();
 
   if (result.error) throw result.error;
+  if (!result.data) throw new Error('لم يتم العثور على العقد المحدد للتحديث');
   return result.data;
 }
 
@@ -206,7 +203,7 @@ export async function autoReleaseExpiredBillboards() {
   
   const { data: expiredContracts, error: fetchError } = await supabase
     .from('Contract')
-    .select('"Contract Number", "End Date"')
+    .select('Contract_Number, "End Date"')
     .lt('"End Date"', today);
 
   if (fetchError) throw fetchError;
@@ -222,7 +219,7 @@ export async function autoReleaseExpiredBillboards() {
         Rent_Start_Date: null,
         Rent_End_Date: null
       })
-      .eq('Contract_Number', contract['Contract Number']);
+      .eq('Contract_Number', contract.Contract_Number ?? contract['Contract Number']);
   }
 }
 
@@ -239,17 +236,12 @@ export async function deleteContract(contractNumber: string) {
     })
     .eq('Contract_Number', contractNumber);
 
-  let result: any = await (supabase as any)
+  const numId = Number(contractNumber);
+  const queryId: any = Number.isFinite(numId) && !isNaN(numId) ? numId : contractNumber;
+  const result: any = await (supabase as any)
     .from('Contract')
     .delete()
-    .eq('Contract_Number', contractNumber);
-
-  if (result.error) {
-    result = await (supabase as any)
-      .from('Contract')
-      .delete()
-      .eq('"Contract Number"', contractNumber);
-  }
+    .eq('Contract_Number', queryId);
 
   if (result.error) throw result.error;
 }
@@ -260,12 +252,14 @@ export async function addBillboardsToContract(
   billboardIds: (string | number)[],
   meta: { start_date: string; end_date: string; customer_name: string }
 ) {
+  const numId = Number(contractNumber);
+  const queryId: any = Number.isFinite(numId) && !isNaN(numId) ? numId : contractNumber;
   for (const id of billboardIds) {
     const { error } = await supabase
       .from('billboards')
       .update({
         Status: 'rented',
-        Contract_Number: contractNumber,
+        Contract_Number: queryId,
         Customer_Name: meta.customer_name,
         Rent_Start_Date: meta.start_date,
         Rent_End_Date: meta.end_date,
@@ -279,6 +273,8 @@ export async function removeBillboardFromContract(
   contractNumber: string,
   billboardId: string | number
 ) {
+  const numId = Number(contractNumber);
+  const queryId: any = Number.isFinite(numId) && !isNaN(numId) ? numId : contractNumber;
   const { error } = await supabase
     .from('billboards')
     .update({
@@ -289,7 +285,7 @@ export async function removeBillboardFromContract(
       Rent_End_Date: null,
     })
     .eq('ID', Number(billboardId))
-    .eq('Contract_Number', contractNumber);
+    .eq('Contract_Number', queryId);
   if (error) throw error;
 }
 
