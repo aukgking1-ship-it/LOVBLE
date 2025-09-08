@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/components/ui/sonner';
 import { Plus, Eye, Edit, Trash2, Calendar, User, DollarSign } from 'lucide-react';
@@ -126,7 +126,7 @@ export default function Contracts() {
         loadData();
       } catch (error) {
         console.error('خطأ في حذف العقد:', error);
-        toast.error('فشل في حذف العقد');
+        toast.error('فشل في حذف ��لعقد');
       }
     }
   };
@@ -339,7 +339,7 @@ export default function Contracts() {
                   <TableHead>تاريخ البداية</TableHead>
                   <TableHead>تاريخ النهاية</TableHead>
                   <TableHead>التكلفة</TableHead>
-                  <TableHead>ا��حالة</TableHead>
+                  <TableHead>الحالة</TableHead>
                   <TableHead>الإجراءات</TableHead>
                 </TableRow>
               </TableHeader>
@@ -377,8 +377,8 @@ export default function Contracts() {
           </div>
 
           <div className="mt-4 flex items-center justify-between">
-            <div className="text-sm text-muted-foreground">إجمالي: {total}</div>
-            {total > pageSize && (
+            <div className="text-sm text-muted-foreground">إجمالي: {total || '—'}</div>
+            {(total > pageSize || contracts.length === pageSize || page > 1) && (
               <Pagination>
                 <PaginationContent>
                   <PaginationItem>
@@ -545,7 +545,7 @@ export default function Contracts() {
                                     end_date: selectedContract.end_date || selectedContract['End Date'],
                                     customer_name: selectedContract.customer_name || selectedContract['Customer Name'] || '',
                                   });
-                                  toast.success('تم إضافة اللوحة إلى العقد');
+                                  toast.success('تم إضا��ة اللوحة إلى العقد');
                                   const refreshed = await getContractWithBillboards(contractNumber);
                                   setSelectedContract(refreshed);
                                   const av = await getAvailableBillboards();
