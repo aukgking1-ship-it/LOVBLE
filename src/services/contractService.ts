@@ -155,44 +155,63 @@ export async function updateContract(contractId: string, updates: any) {
   const numId = Number(contractId);
   const queryId: any = Number.isFinite(numId) && !isNaN(numId) ? numId : contractId;
 
-  // محاولة 1: Contract_Number
+  // أولاً تأكد من وجود العقد عبر البحث بمرونة
+  let found: any = null;
   try {
-    const r1: any = await (supabase as any)
+    const r = await (supabase as any)
       .from('Contract')
-      .update(updates)
+      .select('*')
       .eq('Contract_Number', queryId)
-      .select('*')
       .maybeSingle();
-    if (r1?.error) throw r1.error;
-    if (r1?.data) return r1.data;
-  } catch (e: any) {
-    // إن كان خطأ آخر غير عدم العثور نُعيد رميه
-    const msg = String(e?.message || '');
-    if (msg && !/not found/i.test(msg)) {
-      // لكنه قد يكون "column does not exist" عند اختلاف المخطط
-      // سنكمل المحاولات الأخرى
+    if (r && r.data) found = { column: 'Contract_Number', value: r.data.Contract_Number ?? queryId, row: r.data };
+  } catch (e) {
+    // تجاهل
+  }
+
+  if (!found) {
+    try {
+      const r2 = await (supabase as any)
+        .from('Contract')
+        .select('*')
+        .eq('"Contract Number"', queryId)
+        .maybeSingle();
+      if (r2 && r2.data) found = { column: '"Contract Number"', value: r2.data['Contract Number'] ?? queryId, row: r2.data };
+    } catch (e) {
+      // تجاهل
     }
   }
 
-  // محاولة 2: "Contract Number" إن وُجد
-  try {
-    const r2: any = await (supabase as any)
-      .from('Contract')
-      .update(updates)
-      .eq('"Contract Number"', queryId)
-      .select('*')
-      .maybeSingle();
-    if (r2?.error) {
-      const msg = String(r2.error?.message || '');
-      if (!/does not exist/i.test(msg)) throw r2.error;
+  if (!found) {
+    // حاول البحث بنص الاسم إذا كانت id متناظرة كنص
+    try {
+      const r3 = await (supabase as any).from('Contract').select('*').eq('Contract_Number', String(contractId)).maybeSingle();
+      if (r3 && r3.data) found = { column: 'Contract_Number', value: r3.data.Contract_Number ?? contractId, row: r3.data };
+    } catch (e) {
+      // تجاهل
     }
-    if (r2?.data) return r2.data;
-  } catch (e: any) {
-    const msg = String(e?.message || '');
-    if (!/does not exist/i.test(msg)) throw e;
   }
 
-  throw new Error('لم يتم العثور على العقد المحدد للتحديث');
+  if (!found) {
+    throw new Error('لم يتم العثور على العقد المحدد للتحديث');
+  }
+
+  // قم بالتحديث الآن باستخدام العمود والقيمة المُكتشفة
+  const { column, value } = found as any;
+  const res: any = await (supabase as any)
+    .from('Contract')
+    .update(updates)
+    .eq(column as string, value)
+    .select('*')
+    .maybeSingle();
+
+  if (res?.error) throw res.error;
+
+  // إذا لم يُرجع التحديث صفاً (قد يحدث إن لم تتغير القيم)، أرجع الصف الأصلي المحدث محلياً
+  if (!res?.data) {
+    return { ...(found.row || {}), ...updates };
+  }
+
+  return res.data;
 }
 
 // تحديث العقود المنتهية الصلاحية
