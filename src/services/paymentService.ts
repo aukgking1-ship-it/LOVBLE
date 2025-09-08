@@ -24,24 +24,38 @@ export interface CustomerSummary {
 }
 
 export async function getCustomerContracts(customerName: string) {
-  const { data, error } = await supabase
-    .from('Contract' as any)
-    .select('"Contract Number", Contract_Number, "Contract Date", "End Date", "Total Rent", "Total Paid", Remaining, Company, Phone, Level, "Ad Type"')
-    .or(`"Customer Name".eq.${customerName},Customer_Name.eq.${customerName}`);
-  if (error) throw error;
-  return (data || []).map((c: any) => {
-    const number = c.Contract_Number ?? c['Contract Number'];
+  // نجرب التصفية على عمود "Customer Name" أولاً، ثم نfallback إلى Customer_Name إن وُجد
+  let res: any = await (supabase as any)
+    .from('Contract')
+    .select('*')
+    .eq('"Customer Name"', customerName);
+
+  if (res.error) {
+    res = await (supabase as any)
+      .from('Contract')
+      .select('*')
+      .eq('Customer_Name', customerName);
+  }
+
+  if (res.error) throw res.error;
+  const data = res.data || [];
+
+  return data.map((c: any) => {
+    const number = c.Contract_Number ?? c['Contract Number'] ?? c.id ?? c.ID ?? null;
+    const totalRent = Number(c['Total Rent'] ?? c.total_rent ?? 0) || 0;
+    const totalPaid = Number(c['Total Paid'] ?? c.total_paid ?? 0) || 0;
+    const remaining = Number(c['Remaining'] ?? (totalRent - totalPaid)) || 0;
     return {
       contract_number: number,
-      contract_date: c['Contract Date'] || null,
-      end_date: c['End Date'] || null,
-      total_rent: Number(c['Total Rent'] ?? 0) || 0,
-      total_paid: Number(c['Total Paid'] ?? 0) || 0,
-      remaining: Number(c['Remaining'] ?? (Number(c['Total Rent'] ?? 0) - Number(c['Total Paid'] ?? 0))) || 0,
-      company: c.Company || null,
-      phone: c.Phone || null,
-      level: c.Level || null,
-      ad_type: c['Ad Type'] || null,
+      contract_date: c['Contract Date'] ?? c.contract_date ?? null,
+      end_date: c['End Date'] ?? c.end_date ?? null,
+      total_rent: totalRent,
+      total_paid: totalPaid,
+      remaining,
+      company: c.Company ?? null,
+      phone: c.Phone ?? null,
+      level: c.Level ?? null,
+      ad_type: c['Ad Type'] ?? c.Ad_Type ?? null,
     };
   });
 }
