@@ -72,7 +72,11 @@ export async function getContracts() {
     .order('"Contract Date"', { ascending: false });
 
   if (error) throw error;
-  return (data || []).map((c: any) => {
+  return normalizeContracts(data || []);
+}
+
+export function normalizeContracts(rows: any[]): any[] {
+  return (rows || []).map((c: any) => {
     const id = c.Contract_Number ?? c['Contract Number'] ?? c.id ?? c.ID;
     return {
       ...c,
@@ -87,6 +91,25 @@ export async function getContracts() {
       status: c.status ?? c['Print Status'] ?? '',
     } as any;
   });
+}
+
+export async function getContractsPaged(page: number, pageSize: number, search?: string) {
+  const from = Math.max(0, (page - 1) * pageSize);
+  const to = from + pageSize - 1;
+  let query: any = (supabase as any)
+    .from('Contract')
+    .select('*', { count: 'exact' })
+    .order('"Contract Date"', { ascending: false })
+    .range(from, to);
+
+  if (search && search.trim()) {
+    const s = search.trim();
+    query = query.ilike('"Customer Name"', `%${s}%`);
+  }
+
+  const { data, error, count } = await query;
+  if (error) throw error;
+  return { items: normalizeContracts(data || []), total: count || 0 };
 }
 
 // جلب عقد مع اللوحات المرتبطة به
@@ -214,7 +237,7 @@ export async function updateContract(contractId: string, updates: any) {
   return res.data;
 }
 
-// تحديث العقود المنتهية الصلاحية
+// تحد��ث العقود المنتهية الصلاحية
 export async function updateExpiredContracts() {
   const today = new Date().toISOString().split('T')[0];
   
