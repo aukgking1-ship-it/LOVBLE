@@ -339,7 +339,7 @@ export default function Contracts() {
                   <TableHead>تاريخ البداية</TableHead>
                   <TableHead>تاريخ النهاية</TableHead>
                   <TableHead>التكلفة</TableHead>
-                  <TableHead>الحالة</TableHead>
+                  <TableHead>ا��حالة</TableHead>
                   <TableHead>الإجراءات</TableHead>
                 </TableRow>
               </TableHeader>
@@ -568,6 +568,11 @@ export default function Contracts() {
                   </Card>
                 );
               })()}
+              <div className="flex justify-end pt-2">
+                <DialogClose asChild>
+                  <Button variant="outline">إغلاق</Button>
+                </DialogClose>
+              </div>
             </div>
           )}
         </DialogContent>
