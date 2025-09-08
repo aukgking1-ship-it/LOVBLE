@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,7 +14,7 @@ import { Plus, Eye, Edit, Trash2, Calendar, User, DollarSign } from 'lucide-reac
 import { useLocation } from 'react-router-dom';
 import {
   createContract,
-  getContracts,
+  getContractsPaged,
   getContractWithBillboards,
   getAvailableBillboards,
   updateContract,
@@ -28,6 +29,9 @@ import { Billboard } from '@/types';
 export default function Contracts() {
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [availableBillboards, setAvailableBillboards] = useState<Billboard[]>([]);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
   const [viewOpen, setViewOpen] = useState(false);
@@ -48,9 +52,10 @@ export default function Contracts() {
 
   const loadData = async () => {
     try {
-      const contractsData = await getContracts();
+      const { items, total } = await getContractsPaged(page, pageSize);
       const billboardsData = await getAvailableBillboards();
-      setContracts(contractsData as any[]);
+      setContracts(items as any[]);
+      setTotal(total);
       setAvailableBillboards(billboardsData || []);
     } catch (error) {
       console.error('خطأ في تحميل البيانات:', error);
@@ -62,7 +67,8 @@ export default function Contracts() {
 
   useEffect(() => {
     loadData();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, pageSize]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -114,6 +120,9 @@ export default function Contracts() {
       try {
         await deleteContract(contractId);
         toast.success('تم حذف العقد بنجاح');
+        const nextTotal = Math.max(0, total - 1);
+        const lastPage = Math.max(1, Math.ceil(nextTotal / pageSize));
+        setPage((p) => Math.min(p, lastPage));
         loadData();
       } catch (error) {
         console.error('خطأ في حذف العقد:', error);
@@ -366,7 +375,36 @@ export default function Contracts() {
               </TableBody>
             </Table>
           </div>
-          
+
+          <div className="mt-4 flex items-center justify-between">
+            <div className="text-sm text-muted-foreground">إجمالي: {total}</div>
+            {total > pageSize && (
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious href="#" onClick={(e) => { e.preventDefault(); setPage((p) => Math.max(1, p - 1)); }} />
+                  </PaginationItem>
+                  {Array.from({ length: Math.min(5, Math.ceil(total / pageSize)) }).map((_, idx) => {
+                    const totalPages = Math.max(1, Math.ceil(total / pageSize));
+                    const start = Math.max(1, Math.min(totalPages - 4, page - 2));
+                    const p = start + idx;
+                    if (p > totalPages) return null;
+                    return (
+                      <PaginationItem key={p}>
+                        <PaginationLink href="#" isActive={p === page} onClick={(e) => { e.preventDefault(); setPage(p); }}>
+                          {p}
+                        </PaginationLink>
+                      </PaginationItem>
+                    );
+                  })}
+                  <PaginationItem>
+                    <PaginationNext href="#" onClick={(e) => { e.preventDefault(); setPage((p) => Math.min(Math.ceil(total / pageSize), p + 1)); }} />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            )}
+          </div>
+
           {contracts.length === 0 && (
             <div className="text-center py-8">
               <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -467,7 +505,7 @@ export default function Contracts() {
                 </CardContent>
               </Card>
 
-              {/* التعديل: إضافة لوحات أثناء سريان العقد */}
+              {/* ��لتعديل: إضافة لوحات أثناء سريان العقد */}
               {(() => {
                 const today = new Date();
                 const start = selectedContract.start_date ? new Date(selectedContract.start_date) : (selectedContract['Contract Date'] ? new Date(selectedContract['Contract Date']) : null);
