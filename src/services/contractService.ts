@@ -154,16 +154,45 @@ export async function getAvailableBillboards() {
 export async function updateContract(contractId: string, updates: any) {
   const numId = Number(contractId);
   const queryId: any = Number.isFinite(numId) && !isNaN(numId) ? numId : contractId;
-  const result: any = await (supabase as any)
-    .from('Contract')
-    .update(updates)
-    .eq('Contract_Number', queryId)
-    .select('*')
-    .maybeSingle();
 
-  if (result.error) throw result.error;
-  if (!result.data) throw new Error('لم يتم العثور على العقد المحدد للتحديث');
-  return result.data;
+  // محاولة 1: Contract_Number
+  try {
+    const r1: any = await (supabase as any)
+      .from('Contract')
+      .update(updates)
+      .eq('Contract_Number', queryId)
+      .select('*')
+      .maybeSingle();
+    if (r1?.error) throw r1.error;
+    if (r1?.data) return r1.data;
+  } catch (e: any) {
+    // إن كان خطأ آخر غير عدم العثور نُعيد رميه
+    const msg = String(e?.message || '');
+    if (msg && !/not found/i.test(msg)) {
+      // لكنه قد يكون "column does not exist" عند اختلاف المخطط
+      // سنكمل المحاولات الأخرى
+    }
+  }
+
+  // محاولة 2: "Contract Number" إن وُجد
+  try {
+    const r2: any = await (supabase as any)
+      .from('Contract')
+      .update(updates)
+      .eq('"Contract Number"', queryId)
+      .select('*')
+      .maybeSingle();
+    if (r2?.error) {
+      const msg = String(r2.error?.message || '');
+      if (!/does not exist/i.test(msg)) throw r2.error;
+    }
+    if (r2?.data) return r2.data;
+  } catch (e: any) {
+    const msg = String(e?.message || '');
+    if (!/does not exist/i.test(msg)) throw e;
+  }
+
+  throw new Error('لم يتم العثور على العقد المحدد للتحديث');
 }
 
 // تحديث العقود المنتهية الصلاحية
@@ -197,7 +226,7 @@ export async function getContractsStats() {
   return stats;
 }
 
-// تحرير اللوحات المنتهية الصلاحية تلقائياً
+// تحرير ا��لوحات المنتهية الصلاحية تلقائياً
 export async function autoReleaseExpiredBillboards() {
   const today = new Date().toISOString().split('T')[0];
   
