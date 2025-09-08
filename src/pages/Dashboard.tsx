@@ -6,6 +6,7 @@ import { BillboardGridCard } from '@/components/BillboardGridCard';
 import { ContractsTable } from '@/components/ContractsTable';
 import { PricingTable } from '@/components/PricingTable';
 import { UsersTable } from '@/components/UsersTable';
+import CustomersTable from '@/components/CustomersTable';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
