@@ -199,11 +199,11 @@ export default function CustomersTable() {
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <CalendarRange className="h-4 w-4 text-muted-foreground" />
-                        <span className="rtl-nums">{c.first_contract_date ? formatArDate(c.first_contract_date) : '—'}</span>
+                        {c.first_contract_date ? formatLatnDate(c.first_contract_date) : '—'}
                       </div>
                     </TableCell>
                     <TableCell>
-                      <span className="rtl-nums">{c.last_contract_date ? formatArDate(c.last_contract_date) : '—'}</span>
+                      {c.last_contract_date ? formatLatnDate(c.last_contract_date) : '—'}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -251,11 +251,11 @@ export default function CustomersTable() {
                         {contracts.map((ct) => (
                           <TableRow key={ct.contract_number}>
                             <TableCell>{ct.contract_number}</TableCell>
-                            <TableCell><span className="rtl-nums">{ct.contract_date ? formatArDate(ct.contract_date) : '—'}</span></TableCell>
-                            <TableCell><span className="rtl-nums">{ct.end_date ? formatArDate(ct.end_date) : '—'}</span></TableCell>
-                            <TableCell><span className="rtl-nums">{formatArCurrencyLYD(Number(ct.total_rent || 0))}</span></TableCell>
-                            <TableCell><span className="rtl-nums">{formatArCurrencyLYD(Number(ct.total_paid || 0))}</span></TableCell>
-                            <TableCell><span className="rtl-nums">{formatArCurrencyLYD(Number(ct.remaining || 0))}</span></TableCell>
+                            <TableCell>{ct.contract_date ? formatLatnDate(ct.contract_date) : '—'}</TableCell>
+                            <TableCell>{ct.end_date ? formatLatnDate(ct.end_date) : '—'}</TableCell>
+                            <TableCell>{formatLatnCurrencyLYD(Number(ct.total_rent || 0))}</TableCell>
+                            <TableCell>{formatLatnCurrencyLYD(Number(ct.total_paid || 0))}</TableCell>
+                            <TableCell>{formatLatnCurrencyLYD(Number(ct.remaining || 0))}</TableCell>
                           </TableRow>
                         ))}
                         {contracts.length === 0 && (
@@ -310,8 +310,8 @@ export default function CustomersTable() {
                       <TableBody>
                         {payments.map((p) => (
                           <TableRow key={p.id}>
-                            <TableCell><span className="rtl-nums">{p.paid_at ? formatArDate(p.paid_at) : '—'}</span></TableCell>
-                            <TableCell><span className="rtl-nums">{formatArCurrencyLYD(Number(p.amount))}</span></TableCell>
+                            <TableCell>{p.paid_at ? formatLatnDate(p.paid_at) : '—'}</TableCell>
+                            <TableCell>{formatLatnCurrencyLYD(Number(p.amount))}</TableCell>
                             <TableCell>{p.entry_type === 'debt' ? <Badge variant="destructive">دين</Badge> : <Badge>دفع</Badge>}</TableCell>
                             <TableCell>{p.method || '—'}</TableCell>
                             <TableCell>{p.contract_number || '—'}</TableCell>
@@ -375,15 +375,15 @@ export default function CustomersTable() {
                 <CardContent className="space-y-2">
                   <div className="flex items-center justify-between">
                     <span>إجمالي الإيجار</span>
-                    <span className="font-semibold rtl-nums">{formatArCurrencyLYD(Number(summary?.total_rent || 0))}</span>
+                    <span className="font-semibold">{formatLatnCurrencyLYD(Number(summary?.total_rent || 0))}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span>إجمالي المدفوع</span>
-                    <span className="font-semibold text-green-600 rtl-nums">{formatArCurrencyLYD(Number(summary?.total_paid || 0))}</span>
+                    <span className="font-semibold text-green-600">{formatLatnCurrencyLYD(Number(summary?.total_paid || 0))}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span>المتبقي</span>
-                    <span className="font-semibold text-red-600 rtl-nums">{formatArCurrencyLYD(Number(summary?.remaining || 0))}</span>
+                    <span className="font-semibold text-red-600">{formatLatnCurrencyLYD(Number(summary?.remaining || 0))}</span>
                   </div>
                 </CardContent>
               </Card>
