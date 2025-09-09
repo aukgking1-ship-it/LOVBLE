@@ -8,7 +8,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
 import { getCustomers, syncCustomersFromContracts, type CustomerRecord } from '@/services/customerService';
-import { getCustomerContracts, getCustomerPayments, getCustomerSummary, addCustomerPayment, syncContractPaymentsForCustomer, type CustomerPayment } from '@/services/paymentService';
+import { getCustomerContracts, getCustomerPayments, getCustomerSummary, addCustomerPayment, syncContractPaymentsForCustomer, syncAllContractPayments, type CustomerPayment } from '@/services/paymentService';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter, DrawerClose } from '@/components/ui/drawer';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
 import { Users, RefreshCw, Search, Building2, Phone, CalendarRange, DollarSign, Receipt, Plus, Pencil, Trash2 } from 'lucide-react';
@@ -85,7 +85,7 @@ export default function CustomersTable() {
       await load();
     } catch (e: any) {
       let msg = e?.message || '';
-      if (msg.includes('جدول العملاء غير موجود')) {
+      if (msg.includes('جدول ال��ملاء غير موجود')) {
         msg += '\nيرجى إنشاء جدول customers في Supabase ثم إعادة المحاولة.';
       }
       toast({ title: 'خطأ في المزامنة', description: msg as any, variant: 'destructive' });
@@ -265,7 +265,7 @@ export default function CustomersTable() {
                         toast({ title: 'تم الاستيراد', description: (`تمت إضافة ${res.inserted} وتخطي ${res.skipped}` as any) });
                         await openDetails(selected);
                       } catch (e: any) {
-                        toast({ title: 'خطأ', description: (e?.message || 'فشل استيراد ��دفوعات العقود') as any, variant: 'destructive' });
+                        toast({ title: 'خطأ', description: (e?.message || 'فشل استيراد مدفوعات العقود') as any, variant: 'destructive' });
                       }
                     }}>
                       <RefreshCw className="h-4 w-4" /> استيراد من العقود
