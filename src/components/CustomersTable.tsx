@@ -13,6 +13,8 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, Dr
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
 import { Users, RefreshCw, Search, Building2, Phone, CalendarRange, DollarSign, Receipt, Plus, Pencil, Trash2 } from 'lucide-react';
 
+import { useAuth } from '@/contexts/AuthContext';
+
 export default function CustomersTable() {
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
@@ -44,7 +46,7 @@ export default function CustomersTable() {
       const data = await getCustomers();
       setCustomers(data);
     } catch (e: any) {
-      const msg = e?.message || 'تعذر تحميل ال��ملاء';
+      const msg = e?.message || 'تعذر تحميل العملاء';
       toast({ title: 'خطأ', description: msg as any, variant: 'destructive' });
     } finally {
       setLoading(false);
@@ -298,7 +300,7 @@ export default function CustomersTable() {
                 <CardContent className="space-y-2">
                   <div className="flex items-center justify-between">
                     <span>إجمالي الإيجار</span>
-                    <span className="font-semibold">{Number(summary?.total_rent || 0).toLocaleString('ar-LY')} د.ل</span>
+                    <span className="font-semibold">{Number(summary?.total_rent || 0).toLocaleString('ar-LY')} د.��</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span>إجمالي المدفوع</span>
@@ -356,7 +358,7 @@ export default function CustomersTable() {
                         await openDetails(selected);
                         setPaymentForm((s) => ({ ...s, amount: '', reference: '', notes: '', contract_number: '' }));
                       } catch (e: any) {
-                        toast({ title: 'خطأ', description: (e?.message || 'تعذر حفظ الإيصال') as any, variant: 'destructive' });
+                        toast({ title: 'خطأ', description: (e?.message || 'تعذ�� حفظ الإيصال') as any, variant: 'destructive' });
                       } finally {
                         setSavingPayment(false);
                       }
