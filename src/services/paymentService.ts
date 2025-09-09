@@ -42,24 +42,19 @@ function parseContractNumberToInt(v: any): number | null {
 }
 
 export async function getCustomerContracts(customerName: string) {
-  // Try filter on "Customer Name", then fallback to Customer_Name
-  let res: any = await (supabase as any)
+  // Read rows without referencing fragile column names in SQL; filter in JS
+  const res: any = await (supabase as any)
     .from('Contract')
-    .select('*')
-    .eq('"Customer Name"', customerName);
-
-  if (res.error) {
-    res = await (supabase as any)
-      .from('Contract')
-      .select('*')
-      .eq('Customer_Name', customerName);
-  }
-
+    .select('*');
   if (res.error) throw res.error;
-  const data = res.data || [];
+  const all = (res.data || []) as any[];
+  const data = all.filter((c) => {
+    const name = c['Customer Name'] ?? c.Customer_Name ?? c.customer_name ?? '';
+    return String(name) === String(customerName);
+  });
 
   return data.map((c: any) => {
-    const number = c.Contract_Number ?? c['Contract Number'] ?? c.id ?? c.ID ?? null;
+    const number = c['Contract Number'] ?? c.Contract_Number ?? c.id ?? c.ID ?? null;
     const totalRent = Number(c['Total Rent'] ?? c.total_rent ?? 0) || 0;
     const totalPaid = Number(c['Total Paid'] ?? c.total_paid ?? 0) || 0;
     const remaining = Number(c['Remaining'] ?? (totalRent - totalPaid)) || 0;
@@ -155,23 +150,15 @@ export async function deleteCustomerPayment(id: string) {
 
 export async function syncContractPaymentsForCustomer(customerName: string): Promise<{ inserted: number; skipped: number }> {
   // Fetch contracts for this customer with payment columns
-  // Try variant with spaced column names first
-  const q1 = await (supabase as any)
+  // Avoid column-name mismatches: load and filter in JS
+  const q = await (supabase as any)
     .from('Contract')
-    .select('"Contract Number","Customer Name","Contract Date","Payment 1","Payment 2","Payment 3"')
-    .eq('"Customer Name"', customerName);
-
-  let rows: any[] = [];
-  if (q1.error) {
-    const q2 = await (supabase as any)
-      .from('Contract')
-      .select('Contract_Number,Customer_Name,contract_date,payment_1,payment_2,payment_3')
-      .eq('Customer_Name', customerName);
-    if (q2.error) throw q2.error;
-    rows = q2.data || [];
-  } else {
-    rows = q1.data || [];
-  }
+    .select('*');
+  if (q.error) throw q.error;
+  const rows: any[] = (q.data || []).filter((c: any) => {
+    const name = c['Customer Name'] ?? c.Customer_Name ?? c.customer_name ?? '';
+    return String(name) === String(customerName);
+  });
 
   // Build candidates
   type Candidate = { customer_name: string; contract_number: number | null; reference: string; amount: number; paid_at: string; entry_type: 'payment'; method: 'other' | null; notes: string | null };
