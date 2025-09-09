@@ -28,7 +28,7 @@ import {
   Calendar
 } from 'lucide-react';
 import BookingRequestsTable from '@/components/BookingRequestsTable';
-import { formatArNumber, formatArCurrencyLYD } from '@/lib/utils';
+import { formatLatnNumber, formatLatnCurrencyLYD } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 
 interface DashboardStats {
@@ -75,7 +75,7 @@ const Dashboard = () => {
   const handleBillboardAction = (billboard: Billboard) => {
     toast({
       title: "قريباً",
-      description: "سيتم إضافة إجراءات إ��ارة اللوحات قريباً"
+      description: "سيتم إضافة إجراءات إدارة اللوحات قريباً"
     });
   };
 
@@ -222,7 +222,7 @@ const Dashboard = () => {
           </TabsList>
 
           {/* النظرة العامة */}
-          <TabsContent value="overview" className="space-y-6">
+          <TabsContent value="overview" className="space-y-6" dir="ltr">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -230,7 +230,7 @@ const Dashboard = () => {
                   <Building className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold rtl-nums">{formatArNumber(stats?.totalBillboards || 0)}</div>
+                  <div className="text-2xl font-bold">{formatLatnNumber(stats?.totalBillboards || 0)}</div>
                   <p className="text-xs text-muted-foreground">جميع اللوحات في النظام</p>
                 </CardContent>
               </Card>
@@ -241,7 +241,7 @@ const Dashboard = () => {
                   <TrendingUp className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-green-600 rtl-nums">{formatArNumber(stats?.availableBillboards || 0)}</div>
+                  <div className="text-2xl font-bold text-green-600">{formatLatnNumber(stats?.availableBillboards || 0)}</div>
                   <p className="text-xs text-muted-foreground">جاهزة للحجز</p>
                 </CardContent>
               </Card>
@@ -252,18 +252,18 @@ const Dashboard = () => {
                   <AlertTriangle className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-orange-600 rtl-nums">{formatArNumber(stats?.nearExpiryBillboards || 0)}</div>
+                  <div className="text-2xl font-bold text-orange-600">{formatLatnNumber(stats?.nearExpiryBillboards || 0)}</div>
                   <p className="text-xs text-muted-foreground">تحتاج متابعة</p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">إجمالي الإيرادا��</CardTitle>
+                  <CardTitle className="text-sm font-medium">إجمالي الإيرادات</CardTitle>
                   <DollarSign className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold rtl-nums">{formatArCurrencyLYD(stats?.totalRevenue || 0)}</div>
+                  <div className="text-2xl font-bold">{formatLatnCurrencyLYD(stats?.totalRevenue || 0)}</div>
                   <p className="text-xs text-muted-foreground">العوائد الإجمالية</p>
                 </CardContent>
               </Card>
@@ -350,7 +350,7 @@ const Dashboard = () => {
             )}
           </TabsContent>
 
-          {/* ال��قود */}
+          {/* العقود */}
           <TabsContent value="contracts">
             <ContractsTable />
           </TabsContent>
