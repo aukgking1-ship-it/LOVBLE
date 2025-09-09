@@ -255,8 +255,11 @@ export default function CustomersTable() {
               </Card>
 
               <Card>
-                <CardHeader>
+                <CardHeader className="flex items-center justify-between">
                   <CardTitle>سجل المدفوعات</CardTitle>
+                  <Button size="sm" className="gap-2" onClick={() => { setEditing(null); setPaymentModal(true); }}>
+                    <Receipt className="h-4 w-4" /> إضافة قيد
+                  </Button>
                 </CardHeader>
                 <CardContent className="p-0">
                   {detailsLoading ? (
@@ -311,7 +314,7 @@ export default function CustomersTable() {
                     <span className="font-semibold text-green-600">{Number(summary?.total_paid || 0).toLocaleString('ar-LY')} د.ل</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span>المتبق��</span>
+                    <span>المتبقي</span>
                     <span className="font-semibold text-red-600">{Number(summary?.remaining || 0).toLocaleString('ar-LY')} د.ل</span>
                   </div>
                 </CardContent>
