@@ -85,7 +85,7 @@ export default function CustomersTable() {
       await load();
     } catch (e: any) {
       let msg = e?.message || '';
-      if (msg.includes('جدول ال��ملاء غير موجود')) {
+      if (msg.includes('جدول العملاء غير موجود')) {
         msg += '\nيرجى إنشاء جدول customers في Supabase ثم إعادة المحاولة.';
       }
       toast({ title: 'خطأ في المزامنة', description: msg as any, variant: 'destructive' });
@@ -120,6 +120,20 @@ export default function CustomersTable() {
           <Button onClick={handleSync} disabled={syncing} className="gap-2">
             <RefreshCw className={`h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
             مزامنة من العقود
+          </Button>
+          <Button variant="outline" disabled={syncing} className="gap-2" onClick={async () => {
+            setSyncing(true);
+            try {
+              const res = await syncAllContractPayments();
+              toast({ title: 'تمت مزامنة المدفوعات', description: (`العملاء: ${res.customers} — تمت إضافة ${res.inserted} وتخطي ${res.skipped}` as any) });
+              if (selected) await openDetails(selected);
+            } catch (e: any) {
+              toast({ title: 'خطأ', description: (e?.message || 'فشل مزامنة المدفوعات للجميع') as any, variant: 'destructive' });
+            } finally {
+              setSyncing(false);
+            }
+          }}>
+            <RefreshCw className="h-4 w-4" /> مزامنة مدفوعات الكل
           </Button>
         </div>
       </div>
