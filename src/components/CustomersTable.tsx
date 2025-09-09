@@ -16,6 +16,7 @@ import { Users, RefreshCw, Search, Building2, Phone, CalendarRange, DollarSign, 
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function CustomersTable() {
+  const { isAdmin } = useAuth();
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [customers, setCustomers] = useState<CustomerRecord[]>([]);
@@ -27,8 +28,11 @@ export default function CustomersTable() {
   const [summary, setSummary] = useState<{ total_rent: number; total_paid: number; remaining: number } | null>(null);
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [savingPayment, setSavingPayment] = useState(false);
-  const [paymentForm, setPaymentForm] = useState<{ amount: string; method: string; paid_at: string; reference: string; notes: string; contract_number: string }>({
+  const [paymentModal, setPaymentModal] = useState(false);
+  const [editing, setEditing] = useState<CustomerPayment | null>(null);
+  const [paymentForm, setPaymentForm] = useState<{ amount: string; entry_type: 'payment' | 'debt'; method: string; paid_at: string; reference: string; notes: string; contract_number: string }>({
     amount: '',
+    entry_type: 'payment',
     method: 'cash',
     paid_at: new Date().toISOString().slice(0, 10),
     reference: '',
@@ -300,14 +304,14 @@ export default function CustomersTable() {
                 <CardContent className="space-y-2">
                   <div className="flex items-center justify-between">
                     <span>إجمالي الإيجار</span>
-                    <span className="font-semibold">{Number(summary?.total_rent || 0).toLocaleString('ar-LY')} د.��</span>
+                    <span className="font-semibold">{Number(summary?.total_rent || 0).toLocaleString('ar-LY')} د.ل</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span>إجمالي المدفوع</span>
                     <span className="font-semibold text-green-600">{Number(summary?.total_paid || 0).toLocaleString('ar-LY')} د.ل</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span>المتبقي</span>
+                    <span>المتبق��</span>
                     <span className="font-semibold text-red-600">{Number(summary?.remaining || 0).toLocaleString('ar-LY')} د.ل</span>
                   </div>
                 </CardContent>
@@ -358,7 +362,7 @@ export default function CustomersTable() {
                         await openDetails(selected);
                         setPaymentForm((s) => ({ ...s, amount: '', reference: '', notes: '', contract_number: '' }));
                       } catch (e: any) {
-                        toast({ title: 'خطأ', description: (e?.message || 'تعذ�� حفظ الإيصال') as any, variant: 'destructive' });
+                        toast({ title: 'خطأ', description: (e?.message || 'تعذر حفظ الإيصال') as any, variant: 'destructive' });
                       } finally {
                         setSavingPayment(false);
                       }
