@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/components/ui/sonner';
 import { Plus, Eye, Edit, Trash2, Calendar, User, DollarSign } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import {
   createContract,
   getContractsPaged,
@@ -87,7 +87,7 @@ export default function Contracts() {
       }
 
       await createContract(formData);
-      toast.success('تم إنشاء العقد بنجاح');
+      toast.success('ت�� إنشاء العقد بنجاح');
       setCreateOpen(false);
       setFormData({
         customer_name: '',
@@ -177,9 +177,13 @@ export default function Contracts() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground">إدارة العقود</h1>
-          <p className="text-muted-foreground">إنشاء وإدارة عقود الإيج��ر مع اللوحات الإ��لانية</p>
+          <p className="text-muted-foreground">إنشاء وإدارة عقود الإيجار مع اللوحات الإ��لانية</p>
         </div>
-        <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+        <div className="flex items-center gap-2">
+          <Button asChild variant="outline">
+            <Link to="/admin">العودة للوحة التحكم</Link>
+          </Button>
+          <Dialog open={createOpen} onOpenChange={setCreateOpen}>
           <DialogTrigger asChild>
             <Button className="bg-gradient-primary text-white shadow-elegant hover:shadow-glow transition-smooth">
               <Plus className="h-4 w-4 ml-2" />
@@ -319,6 +323,7 @@ export default function Contracts() {
             </div>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       {/* جدول العقود */}
