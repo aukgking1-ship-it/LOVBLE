@@ -97,8 +97,9 @@ export async function getCustomerSummary(customerName: string): Promise<Customer
   const payments = await getCustomerPayments(customerName);
   const total_rent = contracts.reduce((s, c) => s + (Number(c.total_rent) || 0), 0);
   const total_paid_from_contracts = contracts.reduce((s, c) => s + (Number(c.total_paid) || 0), 0);
+  const signedPayments = payments.reduce((s, p) => s + ((p.entry_type === 'debt' ? -1 : 1) * (Number(p.amount) || 0)), 0);
   const total_payments = payments.reduce((s, p) => s + (Number(p.amount) || 0), 0);
-  const total_paid = total_paid_from_contracts + total_payments;
+  const total_paid = total_paid_from_contracts + signedPayments;
   const remaining = total_rent - total_paid;
   return { customer_name: customerName, total_rent, total_paid_from_contracts, total_payments, total_paid, remaining };
 }
