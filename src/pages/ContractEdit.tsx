@@ -39,7 +39,7 @@ export default function ContractEdit() {
   // form fields
   const [customerName, setCustomerName] = useState('');
   const [adType, setAdType] = useState('');
-  const [pricingCategory, setPricingCategory] = useState<string>('ع��دي');
+  const [pricingCategory, setPricingCategory] = useState<string>('عادي');
   const [startDate, setStartDate] = useState('');
   const [durationMonths, setDurationMonths] = useState<number>(3);
   const [endDate, setEndDate] = useState('');
@@ -48,6 +48,7 @@ export default function ContractEdit() {
   const [originalTotal, setOriginalTotal] = useState<number>(0);
   const [discountType, setDiscountType] = useState<'percent' | 'amount'>('percent');
   const [discountValue, setDiscountValue] = useState<number>(0);
+  const [totalPaid, setTotalPaid] = useState<number>(0);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -341,7 +342,7 @@ export default function ContractEdit() {
                             <div className="text-sm font-medium">{(Number(b.price) || 0).toLocaleString('ar-LY')} د.ل / شهر</div>
                             <div className="pt-2">
                               <Button size="sm" variant={isSelected ? 'destructive' : 'outline'} onClick={() => toggleSelect(b)} disabled={disabled}>
-                                {isSelected ? 'إزالة' : 'إضافة'}
+                                {isSelected ? 'إزالة' : 'إضاف��'}
                               </Button>
                             </div>
                           </div>
@@ -474,7 +475,7 @@ export default function ContractEdit() {
                   <Select value={discountType} onValueChange={(v) => setDiscountType(v as any)}>
                     <SelectTrigger><SelectValue placeholder="نوع الخصم" /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="percent">نس��ة %</SelectItem>
+                      <SelectItem value="percent">نسبة %</SelectItem>
                       <SelectItem value="amount">قيمة</SelectItem>
                     </SelectContent>
                   </Select>
