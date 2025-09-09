@@ -77,6 +77,7 @@ export async function addCustomerPayment(p: CustomerPayment) {
     customer_name: p.customer_name,
     contract_number: p.contract_number ?? null,
     amount: p.amount,
+    entry_type: p.entry_type ?? 'payment',
     method: p.method ?? null,
     reference: p.reference ?? null,
     notes: p.notes ?? null,
