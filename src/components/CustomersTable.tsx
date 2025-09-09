@@ -257,9 +257,23 @@ export default function CustomersTable() {
               <Card>
                 <CardHeader className="flex items-center justify-between">
                   <CardTitle>سجل المدفوعات</CardTitle>
-                  <Button size="sm" className="gap-2" onClick={() => { setEditing(null); setPaymentModal(true); }}>
-                    <Receipt className="h-4 w-4" /> إضافة قيد
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm" className="gap-2" disabled={!selected || detailsLoading} onClick={async () => {
+                      if (!selected) return;
+                      try {
+                        const res = await syncContractPaymentsForCustomer(selected.name);
+                        toast({ title: 'تم الاستيراد', description: (`تمت إضافة ${res.inserted} وتخطي ${res.skipped}` as any) });
+                        await openDetails(selected);
+                      } catch (e: any) {
+                        toast({ title: 'خطأ', description: (e?.message || 'فشل استيراد ��دفوعات العقود') as any, variant: 'destructive' });
+                      }
+                    }}>
+                      <RefreshCw className="h-4 w-4" /> استيراد من العقود
+                    </Button>
+                    <Button size="sm" className="gap-2" onClick={() => { setEditing(null); setPaymentModal(true); }}>
+                      <Receipt className="h-4 w-4" /> إضافة قيد
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent className="p-0">
                   {detailsLoading ? (
