@@ -218,6 +218,8 @@ export default function ContractEdit() {
         'Contract Date': startDate,
         'End Date': endDate,
         'Total Rent': finalTotal,
+        'Total Paid': totalPaid,
+        'Remaining': remainingAmount,
         'Discount': discountAmount,
       });
 
@@ -290,7 +292,7 @@ export default function ContractEdit() {
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex-1 relative min-w-[220px]">
                   <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input placeholder="بحث عن ل��حة" value={q} onChange={(e) => setQ(e.target.value)} className="pr-9" />
+                  <Input placeholder="بحث عن لوحة" value={q} onChange={(e) => setQ(e.target.value)} className="pr-9" />
                 </div>
                 <Select value={city} onValueChange={setCity}>
                   <SelectTrigger className="w-[180px]"><SelectValue placeholder="المدينة" /></SelectTrigger>
@@ -488,7 +490,7 @@ export default function ContractEdit() {
                   <Input type="number" value={discountValue} onChange={(e) => setDiscountValue(Number(e.target.value) || 0)} placeholder="0" />
                 </div>
               </div>
-              <div className="text-sm">ال��جمالي قبل الخصم: {baseTotal.toLocaleString('ar-LY')} د.ل</div>
+              <div className="text-sm">الإجمالي قبل الخصم: {baseTotal.toLocaleString('ar-LY')} د.ل</div>
               <div className="text-sm">الخصم: {discountAmount.toLocaleString('ar-LY')} د.ل</div>
               <div className="text-base font-semibold">الإجمالي بعد الخصم: {finalTotal.toLocaleString('ar-LY')} د.ل</div>
               <div className="text-sm text-muted-foreground">السابق: {originalTotal.toLocaleString('ar-LY')} د.ل • الفرق: {(finalTotal - originalTotal).toLocaleString('ar-LY')} د.ل</div>
