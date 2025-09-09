@@ -155,18 +155,23 @@ export async function deleteCustomerPayment(id: string) {
 
 export async function syncContractPaymentsForCustomer(customerName: string): Promise<{ inserted: number; skipped: number }> {
   // Fetch contracts for this customer with payment columns
-  let q = await (supabase as any)
+  // Try variant with spaced column names first
+  const q1 = await (supabase as any)
     .from('Contract')
-    .select('"Contract Number", Contract_Number, "Customer Name", Customer_Name, "Contract Date", "Payment 1", "Payment 2", "Payment 3"')
+    .select('"Contract Number","Customer Name","Contract Date","Payment 1","Payment 2","Payment 3"')
     .eq('"Customer Name"', customerName);
-  if (q.error) {
-    q = await (supabase as any)
+
+  let rows: any[] = [];
+  if (q1.error) {
+    const q2 = await (supabase as any)
       .from('Contract')
-      .select('Contract_Number, Customer_Name, contract_date, payment_1, payment_2, payment_3')
+      .select('Contract_Number,Customer_Name,contract_date,payment_1,payment_2,payment_3')
       .eq('Customer_Name', customerName);
+    if (q2.error) throw q2.error;
+    rows = q2.data || [];
+  } else {
+    rows = q1.data || [];
   }
-  if (q.error) throw q.error;
-  const rows: any[] = q.data || [];
 
   // Build candidates
   type Candidate = { customer_name: string; contract_number: number | null; reference: string; amount: number; paid_at: string; entry_type: 'payment'; method: 'other' | null; notes: string | null };
