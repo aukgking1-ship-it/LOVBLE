@@ -129,7 +129,7 @@ export default function CustomersTable() {
           <div className="flex items-center justify-between gap-4">
             <div>
               <CardTitle>جدول العملاء</CardTitle>
-              <CardDescription>يتم التحديث من العقود تلقائياً عب�� زر المزامنة</CardDescription>
+              <CardDescription>يتم التحديث من العقود تلقائياً عب�� زر المزام��ة</CardDescription>
             </div>
             <div className="relative w-full max-w-xs">
               <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -228,7 +228,7 @@ export default function CustomersTable() {
                           <TableHead className="text-right">التاريخ</TableHead>
                           <TableHead className="text-right">النهاية</TableHead>
                           <TableHead className="text-right">الإيجار</TableHead>
-                          <TableHead className="text-right">مد��وع</TableHead>
+                          <TableHead className="text-right">مدفوع</TableHead>
                           <TableHead className="text-right">المتبقي</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -283,10 +283,47 @@ export default function CustomersTable() {
                           <TableRow key={p.id}>
                             <TableCell>{p.paid_at ? new Date(p.paid_at).toLocaleDateString('ar-LY') : '—'}</TableCell>
                             <TableCell>{Number(p.amount).toLocaleString('ar-LY')} د.ل</TableCell>
+                            <TableCell>{p.entry_type === 'debt' ? <Badge variant="destructive">دين</Badge> : <Badge>دفع</Badge>}</TableCell>
                             <TableCell>{p.method || '—'}</TableCell>
                             <TableCell>{p.contract_number || '—'}</TableCell>
                             <TableCell>{p.reference || '—'}</TableCell>
                             <TableCell>{p.notes || '—'}</TableCell>
+                            {isAdmin && (
+                              <TableCell>
+                                <div className="flex gap-1">
+                                  <Button variant="ghost" size="icon" onClick={() => {
+                                    setEditing(p);
+                                    setPaymentForm({
+                                      amount: String(p.amount ?? ''),
+                                      entry_type: (p.entry_type as any) || 'payment',
+                                      method: p.method || 'cash',
+                                      paid_at: p.paid_at ? new Date(p.paid_at).toISOString().slice(0,10) : new Date().toISOString().slice(0,10),
+                                      reference: p.reference || '',
+                                      notes: p.notes || '',
+                                      contract_number: p.contract_number ? String(p.contract_number) : '',
+                                    });
+                                    setPaymentModal(true);
+                                  }}>
+                                    <Pencil className="h-4 w-4" />
+                                  </Button>
+                                  <Button variant="ghost" size="icon" onClick={async () => {
+                                    if (!p.id) return;
+                                    const ok = confirm('حذف القيد؟');
+                                    if (!ok) return;
+                                    try {
+                                      const { deleteCustomerPayment } = await import('@/services/paymentService');
+                                      await deleteCustomerPayment(p.id);
+                                      toast({ title: 'تم الحذف' });
+                                      if (selected) await openDetails(selected);
+                                    } catch (e: any) {
+                                      toast({ title: 'خطأ', description: (e?.message || 'تعذر الحذف') as any, variant: 'destructive' });
+                                    }
+                                  }}>
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            )}
                           </TableRow>
                         ))}
                         {payments.length === 0 && (
