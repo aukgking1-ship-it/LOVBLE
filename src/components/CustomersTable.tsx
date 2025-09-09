@@ -87,7 +87,7 @@ export default function CustomersTable() {
     } catch (e: any) {
       let msg = e?.message || '';
       if (msg.includes('جدول العملاء غير موجود')) {
-        msg += '\nيرجى إنشاء جدول customers في Supabase ثم إعادة المحاولة.';
+        msg += '\nيرجى إنش��ء جدول customers في Supabase ثم إعادة المحاولة.';
       }
       toast({ title: 'خطأ في المزامنة', description: msg as any, variant: 'destructive' });
     } finally {
@@ -144,7 +144,7 @@ export default function CustomersTable() {
           <div className="flex items-center justify-between gap-4">
             <div>
               <CardTitle>جدول العملاء</CardTitle>
-              <CardDescription>يت�� التحديث من العقود تلقائياً عب�� زر المزامنة</CardDescription>
+              <CardDescription>يتم التحديث من العقود تلقائياً عب�� زر المزامنة</CardDescription>
             </div>
             <div className="relative w-full max-w-xs">
               <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -193,17 +193,17 @@ export default function CustomersTable() {
                     <TableCell>
                       <div className="flex items-center gap-1">
                         <DollarSign className="h-4 w-4 text-green-600" />
-                        {(c.total_rent ?? 0).toLocaleString('ar-LY')} د.ل
+                        <span className="rtl-nums">{formatArCurrencyLYD(Number(c.total_rent ?? 0))}</span>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <CalendarRange className="h-4 w-4 text-muted-foreground" />
-                        {c.first_contract_date ? new Date(c.first_contract_date).toLocaleDateString('ar-LY') : '—'}
+                        <span className="rtl-nums">{c.first_contract_date ? formatArDate(c.first_contract_date) : '—'}</span>
                       </div>
                     </TableCell>
                     <TableCell>
-                      {c.last_contract_date ? new Date(c.last_contract_date).toLocaleDateString('ar-LY') : '—'}
+                      <span className="rtl-nums">{c.last_contract_date ? formatArDate(c.last_contract_date) : '—'}</span>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -251,11 +251,11 @@ export default function CustomersTable() {
                         {contracts.map((ct) => (
                           <TableRow key={ct.contract_number}>
                             <TableCell>{ct.contract_number}</TableCell>
-                            <TableCell>{ct.contract_date ? new Date(ct.contract_date).toLocaleDateString('ar-LY') : '—'}</TableCell>
-                            <TableCell>{ct.end_date ? new Date(ct.end_date).toLocaleDateString('ar-LY') : '—'}</TableCell>
-                            <TableCell>{Number(ct.total_rent || 0).toLocaleString('ar-LY')} د.ل</TableCell>
-                            <TableCell>{Number(ct.total_paid || 0).toLocaleString('ar-LY')} د.ل</TableCell>
-                            <TableCell>{Number(ct.remaining || 0).toLocaleString('ar-LY')} د.ل</TableCell>
+                            <TableCell><span className="rtl-nums">{ct.contract_date ? formatArDate(ct.contract_date) : '—'}</span></TableCell>
+                            <TableCell><span className="rtl-nums">{ct.end_date ? formatArDate(ct.end_date) : '—'}</span></TableCell>
+                            <TableCell><span className="rtl-nums">{formatArCurrencyLYD(Number(ct.total_rent || 0))}</span></TableCell>
+                            <TableCell><span className="rtl-nums">{formatArCurrencyLYD(Number(ct.total_paid || 0))}</span></TableCell>
+                            <TableCell><span className="rtl-nums">{formatArCurrencyLYD(Number(ct.remaining || 0))}</span></TableCell>
                           </TableRow>
                         ))}
                         {contracts.length === 0 && (
@@ -310,8 +310,8 @@ export default function CustomersTable() {
                       <TableBody>
                         {payments.map((p) => (
                           <TableRow key={p.id}>
-                            <TableCell>{p.paid_at ? new Date(p.paid_at).toLocaleDateString('ar-LY') : '—'}</TableCell>
-                            <TableCell>{Number(p.amount).toLocaleString('ar-LY')} د.ل</TableCell>
+                            <TableCell><span className="rtl-nums">{p.paid_at ? formatArDate(p.paid_at) : '—'}</span></TableCell>
+                            <TableCell><span className="rtl-nums">{formatArCurrencyLYD(Number(p.amount))}</span></TableCell>
                             <TableCell>{p.entry_type === 'debt' ? <Badge variant="destructive">دين</Badge> : <Badge>دفع</Badge>}</TableCell>
                             <TableCell>{p.method || '—'}</TableCell>
                             <TableCell>{p.contract_number || '—'}</TableCell>
@@ -375,15 +375,15 @@ export default function CustomersTable() {
                 <CardContent className="space-y-2">
                   <div className="flex items-center justify-between">
                     <span>إجمالي الإيجار</span>
-                    <span className="font-semibold">{Number(summary?.total_rent || 0).toLocaleString('ar-LY')} د.ل</span>
+                    <span className="font-semibold rtl-nums">{formatArCurrencyLYD(Number(summary?.total_rent || 0))}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span>إجمالي المدفوع</span>
-                    <span className="font-semibold text-green-600">{Number(summary?.total_paid || 0).toLocaleString('ar-LY')} د.ل</span>
+                    <span className="font-semibold text-green-600 rtl-nums">{formatArCurrencyLYD(Number(summary?.total_paid || 0))}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span>المتبقي</span>
-                    <span className="font-semibold text-red-600">{Number(summary?.remaining || 0).toLocaleString('ar-LY')} د.ل</span>
+                    <span className="font-semibold text-red-600 rtl-nums">{formatArCurrencyLYD(Number(summary?.remaining || 0))}</span>
                   </div>
                 </CardContent>
               </Card>
