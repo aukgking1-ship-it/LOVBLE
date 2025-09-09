@@ -493,6 +493,16 @@ export default function ContractEdit() {
               <div className="text-sm">الإجمالي قبل الخصم: {baseTotal.toLocaleString('ar-LY')} د.ل</div>
               <div className="text-sm">الخصم: {discountAmount.toLocaleString('ar-LY')} د.ل</div>
               <div className="text-base font-semibold">الإجمالي بعد الخصم: {finalTotal.toLocaleString('ar-LY')} د.ل</div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-sm">المدفوع</label>
+                  <Input type="number" value={totalPaid} onChange={(e) => setTotalPaid(Number(e.target.value) || 0)} placeholder="0" />
+                </div>
+                <div>
+                  <label className="text-sm">المتبقي</label>
+                  <Input value={remainingAmount.toLocaleString('ar-LY')} readOnly />
+                </div>
+              </div>
               <div className="text-sm text-muted-foreground">السابق: {originalTotal.toLocaleString('ar-LY')} د.ل • الفرق: {(finalTotal - originalTotal).toLocaleString('ar-LY')} د.ل</div>
               <Button className="w-full" onClick={save}>حفظ التعديلات</Button>
               <Button variant="outline" className="w-full" onClick={() => navigate('/admin')}>إلغاء</Button>
