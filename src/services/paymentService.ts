@@ -68,7 +68,7 @@ export async function getCustomerPayments(customerName: string) {
     .eq('customer_name', customerName)
     .order('paid_at', { ascending: false });
   if (error) throw error;
-  return (data || []) as CustomerPayment[];
+  return ((data || []) as any[]).map((p) => ({ ...p, entry_type: p.entry_type || 'payment' })) as CustomerPayment[];
 }
 
 export async function addCustomerPayment(p: CustomerPayment) {
