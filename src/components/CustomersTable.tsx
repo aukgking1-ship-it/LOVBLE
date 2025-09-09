@@ -12,6 +12,7 @@ import { getCustomerContracts, getCustomerPayments, getCustomerSummary, addCusto
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter, DrawerClose } from '@/components/ui/drawer';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
 import { Users, RefreshCw, Search, Building2, Phone, CalendarRange, DollarSign, Receipt, Plus, Pencil, Trash2 } from 'lucide-react';
+import { formatArDate, formatArCurrencyLYD, formatArNumber } from '@/lib/utils';
 
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -143,7 +144,7 @@ export default function CustomersTable() {
           <div className="flex items-center justify-between gap-4">
             <div>
               <CardTitle>جدول العملاء</CardTitle>
-              <CardDescription>يتم التحديث من العقود تلقائياً عب�� زر المزامنة</CardDescription>
+              <CardDescription>يت�� التحديث من العقود تلقائياً عب�� زر المزامنة</CardDescription>
             </div>
             <div className="relative w-full max-w-xs">
               <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
