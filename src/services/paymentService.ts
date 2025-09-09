@@ -257,3 +257,95 @@ export async function syncContractPaymentsForCustomer(customerName: string): Pro
 
   return { inserted, skipped: candidates.length - inserted };
 }
+
+export async function syncAllContractPayments(): Promise<{ inserted: number; skipped: number; customers: number }> {
+  const q = await (supabase as any)
+    .from('Contract')
+    .select('*');
+  if (q.error) throw q.error;
+  const rows: any[] = q.data || [];
+
+  const byCustomer = new Map<string, any[]>();
+  for (const r of rows) {
+    const name = (r['Customer Name'] ?? r.Customer_Name ?? r.customer_name ?? '').trim();
+    if (!name) continue;
+    if (!byCustomer.has(name)) byCustomer.set(name, []);
+    byCustomer.get(name)!.push(r);
+  }
+
+  let totalInserted = 0; let totalSkipped = 0;
+
+  for (const [customerName, customerRows] of byCustomer.entries()) {
+    const candidates: { customer_name: string; contract_number: number | null; reference: string; amount: number; paid_at: string; entry_type: 'payment'; method: 'other' | null; notes: string | null }[] = [];
+    for (const c of customerRows) {
+      const cnStr = c['Contract Number'] ?? c.Contract_Number ?? '';
+      const cn = parseContractNumberToInt(cnStr);
+      const cdate = c['Contract Date'] ?? c.contract_date ?? null;
+      const baseDateISO = cdate ? new Date(cdate).toISOString() : new Date().toISOString();
+      const p1 = num(c['Payment 1'] ?? c.payment_1);
+      const p2 = num(c['Payment 2'] ?? c.payment_2);
+      const p3 = num(c['Payment 3'] ?? c.payment_3);
+      const sumP = p1 + p2 + p3;
+      if (sumP > 0) {
+        [p1, p2, p3].forEach((amount, idx) => {
+          if (amount > 0) {
+            const ref = `Imported from contract ${String(cnStr || '')} - payment ${idx + 1}`.trim();
+            candidates.push({
+              customer_name: customerName,
+              contract_number: cn,
+              reference: ref,
+              amount,
+              paid_at: baseDateISO,
+              entry_type: 'payment',
+              method: 'other',
+              notes: 'Imported from Contract table',
+            });
+          }
+        });
+      } else {
+        const totalPaid = num(c['Total Paid'] ?? c.total_paid);
+        if (totalPaid > 0) {
+          const ref = `Imported from contract ${String(cnStr || '')} - total paid`;
+          candidates.push({
+            customer_name: customerName,
+            contract_number: cn,
+            reference: ref,
+            amount: totalPaid,
+            paid_at: baseDateISO,
+            entry_type: 'payment',
+            method: 'other',
+            notes: 'Imported from Contract table (Total Paid)',
+          });
+        }
+      }
+    }
+
+    if (candidates.length === 0) continue;
+
+    const refs = candidates.map((c) => c.reference);
+    const existingRefs = new Set<string>();
+    const chunkSize = 200;
+    for (let i = 0; i < refs.length; i += chunkSize) {
+      const chunk = refs.slice(i, i + chunkSize);
+      const ex = await (supabase as any)
+        .from('customer_payments')
+        .select('reference')
+        .eq('customer_name', customerName)
+        .in('reference', chunk);
+      if (ex.error) throw ex.error;
+      (ex.data || []).forEach((r: any) => existingRefs.add(r.reference));
+    }
+
+    const toInsert = candidates.filter((c) => !existingRefs.has(c.reference));
+    if (toInsert.length > 0) {
+      const { error } = await (supabase as any)
+        .from('customer_payments')
+        .insert(toInsert);
+      if (error) throw error;
+    }
+    totalInserted += toInsert.length;
+    totalSkipped += candidates.length - toInsert.length;
+  }
+
+  return { inserted: totalInserted, skipped: totalSkipped, customers: byCustomer.size };
+}
