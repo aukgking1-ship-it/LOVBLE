@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FileText, Search, Eye, Edit, Trash2, Download, Calendar, User, Building } from 'lucide-react';
+import { formatArDate, formatArCurrencyLYD, formatArNumber } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
@@ -72,16 +73,12 @@ export const ContractsTable = () => {
     if (amount === null || amount === undefined) return 'غير محدد';
     const num = typeof amount === 'string' ? parseFloat(amount) : amount;
     if (typeof num !== 'number' || Number.isNaN(num)) return 'غير محدد';
-    return `${num.toLocaleString('ar-LY')} د.ل`;
+    return formatArCurrencyLYD(num);
   };
 
   const formatDate = (date: string) => {
     if (!date) return 'غير محدد';
-    try {
-      return new Date(date).toLocaleDateString('ar-LY');
-    } catch {
-      return date;
-    }
+    return formatArDate(date);
   };
 
   function computeDaysLeft(contract: Contract): number {
@@ -155,7 +152,7 @@ export const ContractsTable = () => {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">إجمالي العقود</p>
-                <p className="text-2xl font-bold">{contracts.length}</p>
+                <p className="text-2xl font-bold rtl-nums">{formatArNumber(contracts.length)}</p>
               </div>
             </div>
           </CardContent>
@@ -169,11 +166,11 @@ export const ContractsTable = () => {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">نشطة</p>
-                <p className="text-2xl font-bold text-green-600">
-                  {contracts.filter(c => {
+                <p className="text-2xl font-bold text-green-600 rtl-nums">
+                  {formatArNumber(contracts.filter(c => {
                     const endDate = new Date(c['End Date']);
                     return endDate > new Date();
-                  }).length}
+                  }).length)}
                 </p>
               </div>
             </div>
@@ -188,8 +185,8 @@ export const ContractsTable = () => {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">عملاء مختلفين</p>
-                <p className="text-2xl font-bold text-orange-600">
-                  {new Set(contracts.map(c => c['Customer Name'])).size}
+                <p className="text-2xl font-bold text-orange-600 rtl-nums">
+                  {formatArNumber(new Set(contracts.map(c => c['Customer Name'])).size)}
                 </p>
               </div>
             </div>
@@ -204,7 +201,7 @@ export const ContractsTable = () => {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">إجمالي القيمة</p>
-                <p className="text-lg font-bold text-blue-600">
+                <p className="text-lg font-bold text-blue-600 rtl-nums">
                   {formatCurrency(contracts.reduce((sum, c) => sum + (c['Total Rent'] || 0), 0))}
                 </p>
               </div>
@@ -249,7 +246,7 @@ export const ContractsTable = () => {
                 <TableHead className="text-right">اسم العميل</TableHead>
                 <TableHead className="text-right">نوع الإعلان</TableHead>
                 <TableHead className="text-right">تاريخ الانتهاء</TableHead>
-                <TableHead className="text-right">مت��قي</TableHead>
+                <TableHead className="text-right">المتبقي</TableHead>
                 <TableHead className="text-right">القيمة الإجمالية</TableHead>
                 <TableHead className="text-right">الحالة</TableHead>
                 <TableHead className="text-right">الإجراءات</TableHead>
@@ -261,9 +258,9 @@ export const ContractsTable = () => {
                   <TableCell className="font-medium">{contract.Contract_Number ?? contract['Contract Number']}</TableCell>
                   <TableCell>{contract['Customer Name']}</TableCell>
                   <TableCell><Badge variant="outline">{contract['Ad Type']}</Badge></TableCell>
-                  <TableCell>{formatDate(contract['End Date'] as any)}</TableCell>
-                  <TableCell>{daysLeft} يوم</TableCell>
-                  <TableCell>{formatCurrency(contract['Total Rent'] as any)}</TableCell>
+                  <TableCell><span className="rtl-nums">{formatDate(contract['End Date'] as any)}</span></TableCell>
+                  <TableCell><span className="rtl-nums">{formatArNumber(daysLeft)}</span> يوم</TableCell>
+                  <TableCell><span className="rtl-nums">{formatCurrency(contract['Total Rent'] as any)}</span></TableCell>
                   <TableCell>{getStatusBadge(contract)}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
