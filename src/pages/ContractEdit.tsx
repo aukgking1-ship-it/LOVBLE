@@ -39,7 +39,7 @@ export default function ContractEdit() {
   // form fields
   const [customerName, setCustomerName] = useState('');
   const [adType, setAdType] = useState('');
-  const [pricingCategory, setPricingCategory] = useState<string>('عادي');
+  const [pricingCategory, setPricingCategory] = useState<string>('ع��دي');
   const [startDate, setStartDate] = useState('');
   const [durationMonths, setDurationMonths] = useState<number>(3);
   const [endDate, setEndDate] = useState('');
@@ -218,7 +218,7 @@ export default function ContractEdit() {
       });
 
       toast.success('تم حفظ التعديلات');
-      navigate('/admin/contracts');
+      navigate('/admin');
     } catch (e: any) {
       console.error(e);
       toast.error(e?.message || 'فشل حفظ التعديلات');
@@ -230,7 +230,7 @@ export default function ContractEdit() {
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold">تعديل عقد {contractNumber && `#${contractNumber}`}</h1>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => navigate('/admin/contracts')}>عودة</Button>
+          <Button variant="outline" onClick={() => navigate('/admin')}>عودة</Button>
           <Button onClick={save}>حفظ</Button>
         </div>
       </div>
@@ -474,7 +474,7 @@ export default function ContractEdit() {
                   <Select value={discountType} onValueChange={(v) => setDiscountType(v as any)}>
                     <SelectTrigger><SelectValue placeholder="نوع الخصم" /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="percent">نسبة %</SelectItem>
+                      <SelectItem value="percent">نس��ة %</SelectItem>
                       <SelectItem value="amount">قيمة</SelectItem>
                     </SelectContent>
                   </Select>
@@ -489,7 +489,7 @@ export default function ContractEdit() {
               <div className="text-base font-semibold">الإجمالي بعد الخصم: {finalTotal.toLocaleString('ar-LY')} د.ل</div>
               <div className="text-sm text-muted-foreground">السابق: {originalTotal.toLocaleString('ar-LY')} د.ل • الفرق: {(finalTotal - originalTotal).toLocaleString('ar-LY')} د.ل</div>
               <Button className="w-full" onClick={save}>حفظ التعديلات</Button>
-              <Button variant="outline" className="w-full" onClick={() => navigate('/admin/contracts')}>إلغاء</Button>
+              <Button variant="outline" className="w-full" onClick={() => navigate('/admin')}>إلغاء</Button>
             </CardContent>
           </Card>
         </div>
