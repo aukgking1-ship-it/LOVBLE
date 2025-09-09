@@ -10,7 +10,8 @@ import { toast } from '@/hooks/use-toast';
 import { getCustomers, syncCustomersFromContracts, type CustomerRecord } from '@/services/customerService';
 import { getCustomerContracts, getCustomerPayments, getCustomerSummary, addCustomerPayment, type CustomerPayment } from '@/services/paymentService';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter, DrawerClose } from '@/components/ui/drawer';
-import { Users, RefreshCw, Search, Building2, Phone, CalendarRange, DollarSign, Receipt, Plus } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
+import { Users, RefreshCw, Search, Building2, Phone, CalendarRange, DollarSign, Receipt, Plus, Pencil, Trash2 } from 'lucide-react';
 
 export default function CustomersTable() {
   const [loading, setLoading] = useState(true);
@@ -43,7 +44,7 @@ export default function CustomersTable() {
       const data = await getCustomers();
       setCustomers(data);
     } catch (e: any) {
-      const msg = e?.message || 'تعذر تحميل العملاء';
+      const msg = e?.message || 'تعذر تحميل ال��ملاء';
       toast({ title: 'خطأ', description: msg as any, variant: 'destructive' });
     } finally {
       setLoading(false);
