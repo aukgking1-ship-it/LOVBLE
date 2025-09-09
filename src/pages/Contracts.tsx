@@ -126,7 +126,7 @@ export default function Contracts() {
         loadData();
       } catch (error) {
         console.error('خطأ في حذف العقد:', error);
-        toast.error('فشل في حذف ��لعقد');
+        toast.error('فشل في حذف العقد');
       }
     }
   };
@@ -177,7 +177,7 @@ export default function Contracts() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground">إدارة العقود</h1>
-          <p className="text-muted-foreground">إنشاء وإدارة عقود الإيجار مع اللوحات الإ��لانية</p>
+          <p className="text-muted-foreground">إنشاء وإدارة عقود الإيج��ر مع اللوحات الإ��لانية</p>
         </div>
         <Dialog open={createOpen} onOpenChange={setCreateOpen}>
           <DialogTrigger asChild>
@@ -376,8 +376,22 @@ export default function Contracts() {
             </Table>
           </div>
 
-          <div className="mt-4 flex items-center justify-between">
-            <div className="text-sm text-muted-foreground">إجمالي: {total || '—'}</div>
+          <div className="mt-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div className="flex items-center gap-3">
+              <div className="text-sm text-muted-foreground">إجمالي: {total || '—'}</div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">حجم الصفحة</span>
+                <Select value={String(pageSize)} onValueChange={(v) => { setPageSize(Number(v)); setPage(1); }}>
+                  <SelectTrigger className="w-[100px]"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="10">10</SelectItem>
+                    <SelectItem value="20">20</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
             {(total > pageSize || contracts.length === pageSize || page > 1) && (
               <Pagination>
                 <PaginationContent>
@@ -545,7 +559,7 @@ export default function Contracts() {
                                     end_date: selectedContract.end_date || selectedContract['End Date'],
                                     customer_name: selectedContract.customer_name || selectedContract['Customer Name'] || '',
                                   });
-                                  toast.success('تم إضا��ة اللوحة إلى العقد');
+                                  toast.success('تم إضافة اللوحة إلى العقد');
                                   const refreshed = await getContractWithBillboards(contractNumber);
                                   setSelectedContract(refreshed);
                                   const av = await getAvailableBillboards();
