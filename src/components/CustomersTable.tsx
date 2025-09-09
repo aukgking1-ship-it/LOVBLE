@@ -193,7 +193,7 @@ export default function CustomersTable() {
                     <TableCell>
                       <div className="flex items-center gap-1">
                         <DollarSign className="h-4 w-4 text-green-600" />
-                        <span className="rtl-nums">{formatArCurrencyLYD(Number(c.total_rent ?? 0))}</span>
+                        {formatLatnCurrencyLYD(Number(c.total_rent ?? 0))}
                       </div>
                     </TableCell>
                     <TableCell>
