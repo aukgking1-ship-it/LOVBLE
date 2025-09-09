@@ -129,7 +129,7 @@ export default function CustomersTable() {
           <div className="flex items-center justify-between gap-4">
             <div>
               <CardTitle>جدول العملاء</CardTitle>
-              <CardDescription>يتم التحديث من العقود تلقائياً عب�� زر المزام��ة</CardDescription>
+              <CardDescription>يتم التحديث من العقود تلقائياً عب�� زر المزامنة</CardDescription>
             </div>
             <div className="relative w-full max-w-xs">
               <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -359,64 +359,11 @@ export default function CustomersTable() {
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2"><Receipt className="h-4 w-4" /> إيصال جديد</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <Input type="number" placeholder="المبلغ" value={paymentForm.amount} onChange={(e) => setPaymentForm((s) => ({ ...s, amount: e.target.value }))} />
-                  <Select value={paymentForm.method} onValueChange={(v) => setPaymentForm((s) => ({ ...s, method: v }))}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="طريقة الدفع" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="cash">نقداً</SelectItem>
-                      <SelectItem value="bank">إيداع بنكي</SelectItem>
-                      <SelectItem value="transfer">تحويل</SelectItem>
-                      <SelectItem value="card">بطاقة</SelectItem>
-                      <SelectItem value="check">شيك</SelectItem>
-                      <SelectItem value="other">أخرى</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Input type="date" value={paymentForm.paid_at} onChange={(e) => setPaymentForm((s) => ({ ...s, paid_at: e.target.value }))} />
-                  <Input placeholder="رقم العقد (اختياري)" value={paymentForm.contract_number} onChange={(e) => setPaymentForm((s) => ({ ...s, contract_number: e.target.value }))} />
-                  <Input placeholder="مرجع (اختياري)" value={paymentForm.reference} onChange={(e) => setPaymentForm((s) => ({ ...s, reference: e.target.value }))} />
-                  <Textarea placeholder="ملاحظات" value={paymentForm.notes} onChange={(e) => setPaymentForm((s) => ({ ...s, notes: e.target.value }))} />
-                  <div className="flex gap-2">
-                    <Button className="gap-2" disabled={savingPayment} onClick={async () => {
-                      if (!selected) return;
-                      const amountNum = Number(paymentForm.amount);
-                      if (!(amountNum > 0)) { toast({ title: 'الرجاء إدخال مبلغ صحيح', variant: 'destructive' } as any); return; }
-                      setSavingPayment(true);
-                      try {
-                        await addCustomerPayment({
-                          customer_id: selected.id || null,
-                          customer_name: selected.name,
-                          amount: amountNum,
-                          method: paymentForm.method as any,
-                          paid_at: new Date(paymentForm.paid_at).toISOString(),
-                          reference: paymentForm.reference || null,
-                          notes: paymentForm.notes || null,
-                          contract_number: paymentForm.contract_number ? Number(paymentForm.contract_number) : null,
-                        });
-                        toast({ title: 'تم الحفظ', description: 'تم إضافة إيصال الدفع' });
-                        // reload details
-                        await openDetails(selected);
-                        setPaymentForm((s) => ({ ...s, amount: '', reference: '', notes: '', contract_number: '' }));
-                      } catch (e: any) {
-                        toast({ title: 'خطأ', description: (e?.message || 'تعذر حفظ الإيصال') as any, variant: 'destructive' });
-                      } finally {
-                        setSavingPayment(false);
-                      }
-                    }}>
-                      <Plus className="h-4 w-4" /> حفظ الإيصال
-                    </Button>
-                    <DrawerClose asChild>
-                      <Button variant="outline">إغلاق</Button>
-                    </DrawerClose>
-                  </div>
-                </CardContent>
-              </Card>
+              <div>
+                <DrawerClose asChild>
+                  <Button variant="outline" className="w-full">إغلاق</Button>
+                </DrawerClose>
+              </div>
             </div>
           </div>
           <DrawerFooter />
