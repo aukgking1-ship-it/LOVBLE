@@ -41,3 +41,25 @@ export function formatArCurrencyLYD(n: number): string {
   const num = formatArNumber(n);
   return `${num} د.ل`;
 }
+
+export function formatLatnDate(input: string | Date): string {
+  try {
+    const date = input instanceof Date ? input : new Date(input);
+    const locale = 'ar-LY-u-nu-latn';
+    const options: Intl.DateTimeFormatOptions & { calendar?: string } = {
+      year: 'numeric', month: '2-digit', day: '2-digit', calendar: 'gregory'
+    };
+    return new Intl.DateTimeFormat(locale, options).format(date);
+  } catch { return ''; }
+}
+
+export function formatLatnNumber(n: number): string {
+  try {
+    return new Intl.NumberFormat('ar-LY-u-nu-latn', { maximumFractionDigits: 0, useGrouping: true }).format(Number(n) || 0);
+  } catch { return (Number(n) || 0).toLocaleString('en-US'); }
+}
+
+export function formatLatnCurrencyLYD(n: number): string {
+  const num = formatLatnNumber(n);
+  return `${num} د.ل`;
+}
