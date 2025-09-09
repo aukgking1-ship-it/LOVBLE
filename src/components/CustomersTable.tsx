@@ -369,6 +369,92 @@ export default function CustomersTable() {
           <DrawerFooter />
         </DrawerContent>
       </Drawer>
+
+      <Dialog open={paymentModal} onOpenChange={setPaymentModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{editing ? 'تعديل القيد' : 'إضافة قيد'}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-2">
+              <Input type="number" placeholder="المبلغ" value={paymentForm.amount} onChange={(e) => setPaymentForm((s) => ({ ...s, amount: e.target.value }))} />
+              <Select value={paymentForm.entry_type} onValueChange={(v: any) => setPaymentForm((s) => ({ ...s, entry_type: v }))}>
+                <SelectTrigger><SelectValue placeholder="نوع القيد" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="payment">دفع</SelectItem>
+                  <SelectItem value="debt">دين سابق</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {paymentForm.entry_type === 'payment' && (
+              <Select value={paymentForm.method} onValueChange={(v) => setPaymentForm((s) => ({ ...s, method: v }))}>
+                <SelectTrigger><SelectValue placeholder="طريقة الدفع" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="cash">نقداً</SelectItem>
+                  <SelectItem value="bank">إيداع بنكي</SelectItem>
+                  <SelectItem value="transfer">تحويل</SelectItem>
+                  <SelectItem value="card">بطاقة</SelectItem>
+                  <SelectItem value="check">شيك</SelectItem>
+                  <SelectItem value="other">أخرى</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+            <Input type="date" value={paymentForm.paid_at} onChange={(e) => setPaymentForm((s) => ({ ...s, paid_at: e.target.value }))} />
+            <Input placeholder="رقم العقد (اختياري)" value={paymentForm.contract_number} onChange={(e) => setPaymentForm((s) => ({ ...s, contract_number: e.target.value }))} />
+            <Input placeholder="مرجع (اختياري)" value={paymentForm.reference} onChange={(e) => setPaymentForm((s) => ({ ...s, reference: e.target.value }))} />
+            <Textarea placeholder="بيان/ملاحظات" value={paymentForm.notes} onChange={(e) => setPaymentForm((s) => ({ ...s, notes: e.target.value }))} />
+            <div className="flex gap-2 justify-end">
+              <DialogClose asChild>
+                <Button variant="outline">إلغاء</Button>
+              </DialogClose>
+              <Button className="gap-2" disabled={savingPayment} onClick={async () => {
+                if (!selected) return;
+                const amountNum = Number(paymentForm.amount);
+                if (!(amountNum > 0)) { toast({ title: 'الرجاء إدخال مبلغ صحيح', variant: 'destructive' } as any); return; }
+                setSavingPayment(true);
+                try {
+                  if (editing && editing.id) {
+                    const { updateCustomerPayment } = await import('@/services/paymentService');
+                    await updateCustomerPayment(editing.id, {
+                      amount: amountNum,
+                      entry_type: paymentForm.entry_type as any,
+                      method: paymentForm.entry_type === 'payment' ? (paymentForm.method as any) : null,
+                      paid_at: new Date(paymentForm.paid_at).toISOString(),
+                      reference: paymentForm.reference || null,
+                      notes: paymentForm.notes || null,
+                      contract_number: paymentForm.contract_number ? Number(paymentForm.contract_number) : null,
+                    });
+                    toast({ title: 'تم الحفظ' });
+                  } else {
+                    await addCustomerPayment({
+                      customer_id: selected.id || null,
+                      customer_name: selected.name,
+                      amount: amountNum,
+                      entry_type: paymentForm.entry_type as any,
+                      method: paymentForm.entry_type === 'payment' ? (paymentForm.method as any) : null,
+                      paid_at: new Date(paymentForm.paid_at).toISOString(),
+                      reference: paymentForm.reference || null,
+                      notes: paymentForm.notes || null,
+                      contract_number: paymentForm.contract_number ? Number(paymentForm.contract_number) : null,
+                    });
+                    toast({ title: 'تمت الإضافة' });
+                  }
+                  await openDetails(selected);
+                  setPaymentModal(false);
+                  setEditing(null);
+                  setPaymentForm((s) => ({ ...s, amount: '', reference: '', notes: '', contract_number: '' }));
+                } catch (e: any) {
+                  toast({ title: 'خطأ', description: (e?.message || 'فشل حفظ القيد') as any, variant: 'destructive' });
+                } finally {
+                  setSavingPayment(false);
+                }
+              }}>
+                <Plus className="h-4 w-4" /> حفظ
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
