@@ -24,11 +24,23 @@ export interface CustomerSummary {
   remaining: number;
 }
 
+function toAsciiDigits(input: string): string {
+  const arabicIndic = ['\u0660','\u0661','\u0662','\u0663','\u0664','\u0665','\u0666','\u0667','\u0668','\u0669'];
+  const easternArabicIndic = ['\u06F0','\u06F1','\u06F2','\u06F3','\u06F4','\u06F5','\u06F6','\u06F7','\u06F8','\u06F9'];
+  let s = input;
+  arabicIndic.forEach((d, i) => { s = s.replace(new RegExp(d, 'g'), String(i)); });
+  easternArabicIndic.forEach((d, i) => { s = s.replace(new RegExp(d, 'g'), String(i)); });
+  return s;
+}
+
 function num(v: any): number {
   if (v === null || v === undefined) return 0;
   if (typeof v === 'number') return isFinite(v) ? v : 0;
-  const s = String(v).replace(/[^0-9.-]/g, '');
-  const n = Number(s);
+  const s = toAsciiDigits(String(v));
+  // Remove all non-digits (keep minus). Treat thousands separators and currency as non-digits.
+  const cleaned = s.replace(/[^0-9-]/g, '');
+  if (!cleaned) return 0;
+  const n = Number(cleaned);
   return isFinite(n) ? n : 0;
 }
 
@@ -168,23 +180,42 @@ export async function syncContractPaymentsForCustomer(customerName: string): Pro
     const cn = parseContractNumberToInt(cnStr);
     const cdate = c['Contract Date'] ?? c.contract_date ?? null;
     const baseDateISO = cdate ? new Date(cdate).toISOString() : new Date().toISOString();
-    const payments = [c['Payment 1'] ?? c.payment_1, c['Payment 2'] ?? c.payment_2, c['Payment 3'] ?? c.payment_3];
-    payments.forEach((val, idx) => {
-      const amount = num(val);
-      if (amount > 0) {
-        const ref = `Imported from contract ${String(cnStr || '')} - payment ${idx + 1}`.trim();
+    const p1 = num(c['Payment 1'] ?? c.payment_1);
+    const p2 = num(c['Payment 2'] ?? c.payment_2);
+    const p3 = num(c['Payment 3'] ?? c.payment_3);
+    const sumP = p1 + p2 + p3;
+    if (sumP > 0) {
+      [p1, p2, p3].forEach((amount, idx) => {
+        if (amount > 0) {
+          const ref = `Imported from contract ${String(cnStr || '')} - payment ${idx + 1}`.trim();
+          candidates.push({
+            customer_name: customerName,
+            contract_number: cn,
+            reference: ref,
+            amount,
+            paid_at: baseDateISO,
+            entry_type: 'payment',
+            method: 'other',
+            notes: 'Imported from Contract table',
+          });
+        }
+      });
+    } else {
+      const totalPaid = num(c['Total Paid'] ?? c.total_paid);
+      if (totalPaid > 0) {
+        const ref = `Imported from contract ${String(cnStr || '')} - total paid`;
         candidates.push({
           customer_name: customerName,
           contract_number: cn,
           reference: ref,
-          amount,
+          amount: totalPaid,
           paid_at: baseDateISO,
           entry_type: 'payment',
           method: 'other',
-          notes: 'Imported from Contract table',
+          notes: 'Imported from Contract table (Total Paid)',
         });
       }
-    });
+    }
   }
 
   if (candidates.length === 0) return { inserted: 0, skipped: 0 };
