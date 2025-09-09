@@ -6,6 +6,7 @@ export interface CustomerPayment {
   customer_name: string;
   contract_number?: number | null;
   amount: number;
+  entry_type?: 'payment' | 'debt' | null;
   method?: 'cash' | 'bank' | 'transfer' | 'card' | 'check' | 'other' | null;
   reference?: string | null;
   notes?: string | null;
