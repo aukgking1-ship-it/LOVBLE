@@ -8,7 +8,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
 import { getCustomers, syncCustomersFromContracts, type CustomerRecord } from '@/services/customerService';
-import { getCustomerContracts, getCustomerPayments, getCustomerSummary, addCustomerPayment, type CustomerPayment } from '@/services/paymentService';
+import { getCustomerContracts, getCustomerPayments, getCustomerSummary, addCustomerPayment, syncContractPaymentsForCustomer, type CustomerPayment } from '@/services/paymentService';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter, DrawerClose } from '@/components/ui/drawer';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
 import { Users, RefreshCw, Search, Building2, Phone, CalendarRange, DollarSign, Receipt, Plus, Pencil, Trash2 } from 'lucide-react';
