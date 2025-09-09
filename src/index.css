@@ -82,3 +82,8 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .rtl-nums { direction: rtl; unicode-bidi: plaintext; text-align: right; }
+  .ltr-nums { direction: ltr; unicode-bidi: plaintext; }
+}
