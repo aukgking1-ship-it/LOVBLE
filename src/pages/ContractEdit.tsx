@@ -114,6 +114,8 @@ export default function ContractEdit() {
           setDiscountType('amount');
           setDiscountValue(disc);
         }
+        const tp = Number((c as any)['Total Paid'] ?? 0);
+        setTotalPaid(isNaN(tp) ? 0 : tp);
         setSelected((c.billboards || []).map((b: any) => String(b.ID)));
       } catch (e: any) {
         console.error(e);
@@ -342,7 +344,7 @@ export default function ContractEdit() {
                             <div className="text-sm font-medium">{(Number(b.price) || 0).toLocaleString('ar-LY')} د.ل / شهر</div>
                             <div className="pt-2">
                               <Button size="sm" variant={isSelected ? 'destructive' : 'outline'} onClick={() => toggleSelect(b)} disabled={disabled}>
-                                {isSelected ? 'إزالة' : 'إضاف��'}
+                                {isSelected ? 'إزالة' : 'إضافة'}
                               </Button>
                             </div>
                           </div>
