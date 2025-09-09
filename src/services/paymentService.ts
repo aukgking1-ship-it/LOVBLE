@@ -24,6 +24,23 @@ export interface CustomerSummary {
   remaining: number;
 }
 
+function num(v: any): number {
+  if (v === null || v === undefined) return 0;
+  if (typeof v === 'number') return isFinite(v) ? v : 0;
+  const s = String(v).replace(/[^0-9.-]/g, '');
+  const n = Number(s);
+  return isFinite(n) ? n : 0;
+}
+
+function parseContractNumberToInt(v: any): number | null {
+  if (v === null || v === undefined) return null;
+  if (typeof v === 'number') return v;
+  const digits = String(v).match(/\d+/g)?.join('') || '';
+  if (!digits) return null;
+  const n = Number(digits);
+  return isFinite(n) ? n : null;
+}
+
 export async function getCustomerContracts(customerName: string) {
   // Try filter on "Customer Name", then fallback to Customer_Name
   let res: any = await (supabase as any)
@@ -134,4 +151,86 @@ export async function deleteCustomerPayment(id: string) {
     .delete()
     .eq('id', id);
   if (error) throw error;
+}
+
+export async function syncContractPaymentsForCustomer(customerName: string): Promise<{ inserted: number; skipped: number }> {
+  // Fetch contracts for this customer with payment columns
+  let q = await (supabase as any)
+    .from('Contract')
+    .select('"Contract Number", Contract_Number, "Customer Name", Customer_Name, "Contract Date", "Payment 1", "Payment 2", "Payment 3"')
+    .eq('"Customer Name"', customerName);
+  if (q.error) {
+    q = await (supabase as any)
+      .from('Contract')
+      .select('Contract_Number, Customer_Name, contract_date, payment_1, payment_2, payment_3')
+      .eq('Customer_Name', customerName);
+  }
+  if (q.error) throw q.error;
+  const rows: any[] = q.data || [];
+
+  // Build candidates
+  type Candidate = { customer_name: string; contract_number: number | null; reference: string; amount: number; paid_at: string; entry_type: 'payment'; method: 'other' | null; notes: string | null };
+  const candidates: Candidate[] = [];
+  for (const c of rows) {
+    const cnStr = c['Contract Number'] ?? c.Contract_Number ?? '';
+    const cn = parseContractNumberToInt(cnStr);
+    const cdate = c['Contract Date'] ?? c.contract_date ?? null;
+    const baseDateISO = cdate ? new Date(cdate).toISOString() : new Date().toISOString();
+    const payments = [c['Payment 1'] ?? c.payment_1, c['Payment 2'] ?? c.payment_2, c['Payment 3'] ?? c.payment_3];
+    payments.forEach((val, idx) => {
+      const amount = num(val);
+      if (amount > 0) {
+        const ref = `Imported from contract ${String(cnStr || '')} - payment ${idx + 1}`.trim();
+        candidates.push({
+          customer_name: customerName,
+          contract_number: cn,
+          reference: ref,
+          amount,
+          paid_at: baseDateISO,
+          entry_type: 'payment',
+          method: 'other',
+          notes: 'Imported from Contract table',
+        });
+      }
+    });
+  }
+
+  if (candidates.length === 0) return { inserted: 0, skipped: 0 };
+
+  // Fetch existing refs to avoid duplicates
+  const refs = candidates.map((c) => c.reference);
+  // Supabase has a limit on 'in' list size; chunk if large
+  const chunkSize = 200;
+  const existingRefs = new Set<string>();
+  for (let i = 0; i < refs.length; i += chunkSize) {
+    const chunk = refs.slice(i, i + chunkSize);
+    const ex = await (supabase as any)
+      .from('customer_payments')
+      .select('reference')
+      .eq('customer_name', customerName)
+      .in('reference', chunk);
+    if (ex.error) throw ex.error;
+    (ex.data || []).forEach((r: any) => existingRefs.add(r.reference));
+  }
+
+  const toInsert = candidates.filter((c) => !existingRefs.has(c.reference));
+  let inserted = 0;
+  if (toInsert.length > 0) {
+    const { error } = await (supabase as any)
+      .from('customer_payments')
+      .insert(toInsert.map((c) => ({
+        customer_name: c.customer_name,
+        contract_number: c.contract_number,
+        amount: c.amount,
+        entry_type: c.entry_type,
+        method: c.method,
+        reference: c.reference,
+        notes: c.notes,
+        paid_at: c.paid_at,
+      })));
+    if (error) throw error;
+    inserted = toInsert.length;
+  }
+
+  return { inserted, skipped: candidates.length - inserted };
 }
