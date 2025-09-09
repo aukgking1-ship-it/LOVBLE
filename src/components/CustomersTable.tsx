@@ -228,7 +228,7 @@ export default function CustomersTable() {
                           <TableHead className="text-right">التاريخ</TableHead>
                           <TableHead className="text-right">النهاية</TableHead>
                           <TableHead className="text-right">الإيجار</TableHead>
-                          <TableHead className="text-right">مدفوع</TableHead>
+                          <TableHead className="text-right">مد��وع</TableHead>
                           <TableHead className="text-right">المتبقي</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -270,10 +270,12 @@ export default function CustomersTable() {
                         <TableRow>
                           <TableHead className="text-right">التاريخ</TableHead>
                           <TableHead className="text-right">المبلغ</TableHead>
+                          <TableHead className="text-right">النوع</TableHead>
                           <TableHead className="text-right">الطريقة</TableHead>
                           <TableHead className="text-right">العقد</TableHead>
                           <TableHead className="text-right">مرجع</TableHead>
                           <TableHead className="text-right">ملاحظات</TableHead>
+                          {isAdmin && <TableHead className="text-right">إجراءات</TableHead>}
                         </TableRow>
                       </TableHeader>
                       <TableBody>
