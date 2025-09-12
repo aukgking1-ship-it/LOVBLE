@@ -123,7 +123,7 @@ export default function Contracts() {
       });
       loadData();
     } catch (error) {
-      console.error('خطأ في إنشاء العقد:', error);
+      console.error('خطأ في إنشاء الع��د:', error);
       toast.error('ف��ل في إنشاء العقد');
     }
   };
@@ -333,7 +333,7 @@ export default function Contracts() {
                 <div className="space-y-4">
                   <Card className="border">
                     <CardHeader>
-                      <CardTitle className="text-base">بيانات ��لحجز</CardTitle>
+                      <CardTitle className="text-base">بيانات الحجز</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
                       <div>
@@ -399,8 +399,8 @@ export default function Contracts() {
                     </CardHeader>
                     <CardContent>
                       <div className="max-h-96 overflow-auto space-y-2">
-                        {selectedBillboardsDetails.map((b) => (
-                          <div key={b.id} className="flex items-center justify-between rounded-lg border p-3">
+                        {selectedBillboardsDetails.map((b, idx) => (
+                          <div key={b.id ?? `selected-${idx}`} className="flex items-center justify-between rounded-lg border p-3">
                             <div>
                               <div className="font-medium">{b.name}</div>
                               <div className="text-xs text-muted-foreground">{b.location} • {b.size}</div>
@@ -430,8 +430,8 @@ export default function Contracts() {
                         <Input placeholder="بحث..." value={bbSearch} onChange={(e) => setBbSearch(e.target.value)} />
                       </div>
                       <div className="max-h-96 overflow-auto space-y-2">
-                        {filteredAvailable.map((b) => (
-                          <div key={b.id} className="flex items-center justify-between rounded-lg border p-3">
+                        {filteredAvailable.map((b, idx) => (
+                          <div key={b.id ?? `available-${idx}`} className="flex items-center justify-between rounded-lg border p-3">
                             <div>
                               <div className="font-medium">{b.name}</div>
                               <div className="text-xs text-muted-foreground">{b.location} • {b.size}</div>
@@ -570,8 +570,8 @@ export default function Contracts() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">جميع العملاء</SelectItem>
-                {uniqueCustomers.map(customer => (
-                  <SelectItem key={customer} value={customer}>
+                {uniqueCustomers.map((customer, idx) => (
+                  <SelectItem key={customer ?? `customer-${idx}`} value={customer}>
                     {customer}
                   </SelectItem>
                 ))}
@@ -839,8 +839,8 @@ export default function Contracts() {
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {selectedContract.billboards.map((billboard: any) => (
-                        <div key={billboard.ID} className="border rounded-lg p-4">
+                      {selectedContract.billboards.map((billboard: any, idx: number) => (
+                        <div key={billboard.ID ?? `bill-${idx}`} className="border rounded-lg p-4">
                           <h4 className="font-semibold">{billboard.Billboard_Name}</h4>
                           <p className="text-sm text-muted-foreground">{billboard.Nearest_Landmark}</p>
                           <p className="text-xs">{billboard.City} • {billboard.Size}</p>
