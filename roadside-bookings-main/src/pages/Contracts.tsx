@@ -314,7 +314,7 @@ export default function Contracts() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground">إدارة العقود</h1>
-          <p className="text-muted-foreground">إنشاء وإدارة عقود ال��يجار مع اللوحات الإعلانية</p>
+          <p className="text-muted-foreground">إنشاء وإدارة عقود الإيجار مع اللوحات الإعلانية</p>
         </div>
         <Dialog open={createOpen} onOpenChange={setCreateOpen}>
           <DialogTrigger asChild>
@@ -385,7 +385,7 @@ export default function Contracts() {
                       <div>
                         <Label>التكلف�� التقديرية</Label>
                         <Input type="number" value={formData.rent_cost} onChange={(e)=>setFormData({...formData, rent_cost: Number(e.target.value)})} />
-                        <div className="text-xs text-muted-foreground mt-1">يتم ��حديثها تلقائياً حسب الفئة والمدة وعدد اللوحات</div>
+                        <div className="text-xs text-muted-foreground mt-1">يتم تحديثها تلقائياً حسب الفئة والمدة وعدد اللوحات</div>
                       </div>
                     </CardContent>
                   </Card>
@@ -399,8 +399,8 @@ export default function Contracts() {
                     </CardHeader>
                     <CardContent>
                       <div className="max-h-96 overflow-auto space-y-2">
-                        {selectedBillboardsDetails.map((b) => (
-                          <div key={b.id} className="flex items-center justify-between rounded-lg border p-3">
+                        {selectedBillboardsDetails.map((b, idx) => (
+                          <div key={b.id ?? `selected-${idx}`} className="flex items-center justify-between rounded-lg border p-3">
                             <div>
                               <div className="font-medium">{b.name}</div>
                               <div className="text-xs text-muted-foreground">{b.location} • {b.size}</div>
@@ -430,8 +430,8 @@ export default function Contracts() {
                         <Input placeholder="بحث..." value={bbSearch} onChange={(e) => setBbSearch(e.target.value)} />
                       </div>
                       <div className="max-h-96 overflow-auto space-y-2">
-                        {filteredAvailable.map((b) => (
-                          <div key={b.id} className="flex items-center justify-between rounded-lg border p-3">
+                        {filteredAvailable.map((b, idx) => (
+                          <div key={b.id ?? `available-${idx}`} className="flex items-center justify-between rounded-lg border p-3">
                             <div>
                               <div className="font-medium">{b.name}</div>
                               <div className="text-xs text-muted-foreground">{b.location} • {b.size}</div>
@@ -570,8 +570,8 @@ export default function Contracts() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">جميع العملاء</SelectItem>
-                {uniqueCustomers.map(customer => (
-                  <SelectItem key={customer} value={customer}>
+                {uniqueCustomers.map((customer, idx) => (
+                  <SelectItem key={customer ?? `customer-${idx}`} value={customer}>
                     {customer}
                   </SelectItem>
                 ))}
@@ -694,7 +694,7 @@ export default function Contracts() {
                               // draw some header text (positions may need tuning)
                               const drawOpts = (font: any, size: number) => ({ font: font, size, color: rgb(0,0,0) });
                               if (helv) {
-                                p0.drawText(`إيجار لمواقع إعلانية رقم: ${contractNumber}`, { x: 40, y: height - 120, ...drawOpts(helv, 12) });
+                                p0.drawText(`إيجار لمواقع إعلانية ��قم: ${contractNumber}`, { x: 40, y: height - 120, ...drawOpts(helv, 12) });
                                 p0.drawText(`التاريخ: ${dateStr}`, { x: 40, y: height - 140, ...drawOpts(helv, 11) });
                                 p0.drawText(`الطرف الأول: ${partyOne}`, { x: 40, y: height - 170, ...drawOpts(helv, 11) });
                                 p0.drawText(`الطرف الثاني: ${partyTwo}`, { x: 40, y: height - 190, ...drawOpts(helv, 11) });
@@ -774,7 +774,7 @@ export default function Contracts() {
             <div className="text-center py-8">
               <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-foreground mb-2">لا توجد نتائج</h3>
-              <p className="text-muted-foreground">لم يتم العثور على عقو�� تطابق معايير البحث</p>
+              <p className="text-muted-foreground">لم يتم العثور على عقود تطابق معايير البحث</p>
             </div>
           )}
 
@@ -839,8 +839,8 @@ export default function Contracts() {
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {selectedContract.billboards.map((billboard: any) => (
-                        <div key={billboard.ID} className="border rounded-lg p-4">
+                      {selectedContract.billboards.map((billboard: any, idx: number) => (
+                        <div key={billboard.ID ?? `bill-${idx}`} className="border rounded-lg p-4">
                           <h4 className="font-semibold">{billboard.Billboard_Name}</h4>
                           <p className="text-sm text-muted-foreground">{billboard.Nearest_Landmark}</p>
                           <p className="text-xs">{billboard.City} • {billboard.Size}</p>
