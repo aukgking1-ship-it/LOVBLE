@@ -140,7 +140,7 @@ export default function Contracts() {
   };
 
   const handleDeleteContract = async (contractId: string) => {
-    if (window.confirm('هل أنت متأكد م�� حذف هذا العقد؟')) {
+    if (window.confirm('هل أنت متأكد من حذف هذا العقد؟')) {
       try {
         await deleteContract(contractId);
         toast.success('تم حذف العقد بنجاح');
@@ -310,7 +310,7 @@ export default function Contracts() {
 
   return (
     <div className="space-y-6" dir="rtl">
-      {/* العن��ان والأزرار */}
+      {/* العن���ان والأزرار */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground">إدارة العقود</h1>
@@ -875,8 +875,8 @@ export default function Contracts() {
               <SelectTrigger><SelectValue placeholder="اختر زبون" /></SelectTrigger>
               <SelectContent className="max-h-60">
                 <SelectItem value="__none">اختيار</SelectItem>
-                {customersList.map(c => (
-                  <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                {customersList.map((c, idx) => (
+                  <SelectItem key={c.id ?? `cust-${idx}`} value={c.id}>{c.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
