@@ -73,8 +73,16 @@ export default function Contracts() {
         console.warn('failed to load customers list', e);
       }
     } catch (error) {
-      console.error('خطأ في تحميل البيانات:', error);
-      toast.error('فشل في تحميل البيانات');
+      // Better format supabase/JS errors for logging and user-friendly toast
+      try {
+        console.error('خطأ في تحميل البيانات (raw):', error);
+        const formatted = typeof error === 'object' ? JSON.stringify(error, Object.getOwnPropertyNames(error)) : String(error);
+        const message = (error && (error.message || error.error || error.msg)) ? (error.message || error.error || error.msg) : formatted;
+        toast.error('فشل في تحميل البيانات: ' + String(message).slice(0,200));
+      } catch (e) {
+        console.error('خطأ في تحميل البيانات (format failed):', error, e);
+        toast.error('فشل في تحميل البيانات');
+      }
     } finally {
       setLoading(false);
     }
@@ -173,7 +181,7 @@ export default function Contracts() {
       loadData();
     } catch (e) {
       console.error(e);
-      toast.error('فشل تحديث العقد');
+      toast.error('فشل تحديث ا��عقد');
     }
   };
 
@@ -243,7 +251,7 @@ export default function Contracts() {
     return matchesSearch && matchesCustomer && matchesStatus;
   });
 
-  // تقسيم العقود حسب الحالة
+  // تقسيم ا��عقود حسب الحالة
   const contractStats = {
     total: contracts.length,
     active: contracts.filter(c => {
@@ -310,7 +318,7 @@ export default function Contracts() {
 
   return (
     <div className="space-y-6" dir="rtl">
-      {/* العن���ان والأزرار */}
+      {/* العن��ان والأز��ار */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground">إدارة العقود</h1>
