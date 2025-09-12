@@ -604,8 +604,8 @@ export default function Contracts() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredContracts.map((contract) => (
-                  <TableRow key={contract.id} className="hover:bg-card/50 transition-colors">
+                {filteredContracts.map((contract, idx) => (
+                  <TableRow key={contract.id ?? contract.Contract_Number ?? `contract-${idx}`} className="hover:bg-card/50 transition-colors">
                     <TableCell className="font-medium">{contract.customer_name}</TableCell>
                     <TableCell>
                       <Badge variant="outline" className="gap-1">
