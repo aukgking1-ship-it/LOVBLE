@@ -73,8 +73,16 @@ export default function Contracts() {
         console.warn('failed to load customers list', e);
       }
     } catch (error) {
-      console.error('خطأ في تحميل البيانات:', error);
-      toast.error('فشل في تحميل البيانات');
+      // Better format supabase/JS errors for logging and user-friendly toast
+      try {
+        console.error('خطأ في تحميل البيانات (raw):', error);
+        const formatted = typeof error === 'object' ? JSON.stringify(error, Object.getOwnPropertyNames(error)) : String(error);
+        const message = (error && (error.message || error.error || error.msg)) ? (error.message || error.error || error.msg) : formatted;
+        toast.error('فشل في تحميل البيانات: ' + String(message).slice(0,200));
+      } catch (e) {
+        console.error('خطأ في تحميل البيانات (format failed):', error, e);
+        toast.error('فشل في تحميل البيانات');
+      }
     } finally {
       setLoading(false);
     }
@@ -325,7 +333,7 @@ export default function Contracts() {
           </DialogTrigger>
           <DialogContent className="max-w-6xl">
             <DialogHeader>
-              <DialogTitle>إنشاء عقد جديد</DialogTitle>
+              <DialogTitle>إنشا�� عقد جديد</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 mt-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
