@@ -84,7 +84,7 @@ export default function Contracts() {
     loadData();
   }, []);
 
-  // احسب تاريخ النهاية تلقائياً حسب المدة المختارة
+  // احسب تاريخ الن��اية تلقائياً حسب المدة المختارة
   useEffect(() => {
     if (!formData.start_date || !durationMonths) return;
     const d = new Date(formData.start_date);
@@ -349,7 +349,7 @@ export default function Contracts() {
                         <Input
                           value={formData.ad_type}
                           onChange={(e) => setFormData({ ...formData, ad_type: e.target.value })}
-                          placeholder="نوع الإعلان"
+                          placeholder="نوع الإعلا��"
                         />
                       </div>
                       <div>
@@ -661,9 +661,11 @@ export default function Contracts() {
                               setPrinting(contract.id);
                               const details = await getContractWithBillboards(String(contract.id));
 
-                              // template PDF URL (from uploaded file)
-                              const templateUrl = 'https://cdn.builder.io/o/assets%2Fb496a75bf3a847fbbb30839d00fe0721%2F66e10faf2c4d44f787d0db0b9079715c?alt=media&token=205fc1ff-ab26-46fd-bdd1-9ab5ee566add&apiKey=b496a75bf3a847fbbb30839d00fe0721';
-                              const existingPdfBytes = await fetch(templateUrl).then(r => r.arrayBuffer());
+                              // template PDF from public folder
+                              const templateUrl = '/contract-template.pdf';
+                              const res = await fetch(templateUrl);
+                              if (!res.ok) throw new Error('لم يتم العثور على قالب العقد في المجلد العام');
+                              const existingPdfBytes = await res.arrayBuffer();
 
                               const pdfDoc = await PDFDocument.load(existingPdfBytes);
                               const pages = pdfDoc.getPages();
