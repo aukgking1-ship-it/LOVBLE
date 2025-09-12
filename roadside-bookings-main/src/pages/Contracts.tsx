@@ -322,7 +322,7 @@ export default function Contracts() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground">إدارة العقود</h1>
-          <p className="text-muted-foreground">إنشاء وإدارة عقود الإيجار مع اللوحا�� الإعلانية</p>
+          <p className="text-muted-foreground">إنشاء وإدارة عقود الإيجار مع اللوحات الإعلانية</p>
         </div>
         <Dialog open={createOpen} onOpenChange={setCreateOpen}>
           <DialogTrigger asChild>
@@ -677,17 +677,19 @@ export default function Contracts() {
 
                               const pdfDoc = await PDFDocument.load(existingPdfBytes);
                               const pages = pdfDoc.getPages();
-                              // Embed a Unicode-capable Arabic font (Noto Sans Arabic) from public folder
-                              const fontUrl = '/fonts/NotoSansArabic-Regular.ttf';
+                              // Embed DoranFaNum Arabic OTF via fontkit
                               let helv: any = undefined;
                               try {
-                                const fontRes = await fetch(fontUrl);
-                                if (!fontRes.ok) throw new Error('missing local TTF');
-                                const fontBytes = await fontRes.arrayBuffer();
-                                helv = await pdfDoc.embedFont(fontBytes);
+                                const fontkitModule: any = await import('@pdf-lib/fontkit');
+                                const fontkit = fontkitModule.default || fontkitModule;
+                                pdfDoc.registerFontkit(fontkit);
+                                const doranUrl = 'https://cdn.builder.io/o/assets%2Fffc11b1df0d04cada9d1d5377e2f71ab%2Faf7db116564f4572b39df2d9c36fb04f?alt=media&token=f5ef2ad5-6e3a-4264-a0e8-f28ccc6fa069&apiKey=ffc11b1df0d04cada9d1d5377e2f71ab'; // DoranFaNum-Regular.otf
+                                const res = await fetch(doranUrl);
+                                if (!res.ok) throw new Error('Font fetch failed');
+                                const fontBytes = await res.arrayBuffer();
+                                helv = await pdfDoc.embedFont(fontBytes, { subset: true });
                               } catch (err) {
-                                console.warn('Arabic font not available, using ASCII fallback', err);
-                                try { toast.warning('الخط العربي غير متوفر: أضف NotoSansArabic-Regular.ttf إلى public/fonts لاستخدام الطباعة العربية'); } catch {}
+                                console.warn('Arabic font embedding failed, using ASCII fallback', err);
                                 helv = undefined;
                               }
 

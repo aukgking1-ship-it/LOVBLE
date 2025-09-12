@@ -473,7 +473,7 @@ export default function Contracts() {
                 إلغاء
               </Button>
               <Button onClick={handleCreateContract}>
-                إنشاء العقد
+                إنشاء ��لعقد
               </Button>
             </div>
           </DialogContent>
@@ -566,7 +566,7 @@ export default function Contracts() {
               <SelectContent>
                 <SelectItem value="all">جميع الحالات</SelectItem>
                 <SelectItem value="active">نشطة</SelectItem>
-                <SelectItem value="expiring">قريبة الانتهاء</SelectItem>
+                <SelectItem value="expiring">قريبة الانتها��</SelectItem>
                 <SelectItem value="expired">منتهية</SelectItem>
                 <SelectItem value="upcoming">لم تبدأ</SelectItem>
               </SelectContent>
@@ -594,7 +594,7 @@ export default function Contracts() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5 text-primary" />
-            قائمة العق��د ({filteredContracts.length} من {contracts.length})
+            قائمة العقود ({filteredContracts.length} من {contracts.length})
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -672,22 +672,24 @@ export default function Contracts() {
                               // template PDF from public folder
                               const templateUrl = '/contract-template.pdf';
                               const res = await fetch(templateUrl);
-                              if (!res.ok) throw new Error('لم يتم العثور على قالب العقد في المجلد العا��');
+                              if (!res.ok) throw new Error('لم يتم العثور على قالب العقد في المجلد العام');
                               const existingPdfBytes = await res.arrayBuffer();
 
                               const pdfDoc = await PDFDocument.load(existingPdfBytes);
                               const pages = pdfDoc.getPages();
-                              // Embed a Unicode-capable Arabic font (Noto Sans Arabic) from public folder
-                              const fontUrl = '/fonts/NotoSansArabic-Regular.ttf';
+                              // Embed DoranFaNum Arabic OTF via fontkit
                               let helv: any = undefined;
                               try {
-                                const fontRes = await fetch(fontUrl);
-                                if (!fontRes.ok) throw new Error('missing local TTF');
-                                const fontBytes = await fontRes.arrayBuffer();
-                                helv = await pdfDoc.embedFont(fontBytes);
+                                const fontkitModule: any = await import('@pdf-lib/fontkit');
+                                const fontkit = fontkitModule.default || fontkitModule;
+                                pdfDoc.registerFontkit(fontkit);
+                                const doranUrl = 'https://cdn.builder.io/o/assets%2Fffc11b1df0d04cada9d1d5377e2f71ab%2Faf7db116564f4572b39df2d9c36fb04f?alt=media&token=f5ef2ad5-6e3a-4264-a0e8-f28ccc6fa069&apiKey=ffc11b1df0d04cada9d1d5377e2f71ab'; // DoranFaNum-Regular.otf
+                                const res = await fetch(doranUrl);
+                                if (!res.ok) throw new Error('Font fetch failed');
+                                const fontBytes = await res.arrayBuffer();
+                                helv = await pdfDoc.embedFont(fontBytes, { subset: true });
                               } catch (err) {
-                                console.warn('Arabic font not available, using ASCII fallback', err);
-                                try { toast.warning('الخط العربي غير متوفر: أضف NotoSansArabic-Regular.ttf إلى public/fonts لاستخدام الطباعة العربية'); } catch {}
+                                console.warn('Arabic font embedding failed, using ASCII fallback', err);
                                 helv = undefined;
                               }
 
