@@ -643,7 +643,7 @@ export default function Contracts() {
                           onClick={() => openAssignDialog(String(contract.Contract_Number ?? contract.id), contract.customer_id ?? null)}
                           className="h-8 px-2"
                         >
-                          تعي��ن زبون
+                          تعيين زبون
                         </Button>
                         <Button
                           size="sm"
@@ -875,8 +875,8 @@ export default function Contracts() {
               <SelectTrigger><SelectValue placeholder="اختر زبون" /></SelectTrigger>
               <SelectContent className="max-h-60">
                 <SelectItem value="__none">اختيار</SelectItem>
-                {customersList.map(c => (
-                  <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                {customersList.map((c, idx) => (
+                  <SelectItem key={c.id ?? `cust-${idx}`} value={c.id}>{c.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
