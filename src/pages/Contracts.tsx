@@ -26,6 +26,7 @@ import {
 } from '@/services/contractService';
 import { Billboard } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
+import { BRAND_LOGO } from '@/lib/branding';
 
 export default function Contracts() {
   const [contracts, setContracts] = useState<Contract[]>([]);
@@ -112,7 +113,7 @@ export default function Contracts() {
       }
 
       await createContract(formData);
-      toast.success('تم إن��اء العقد بنجاح');
+      toast.success('تم إن  اء العقد بنجاح');
       setCreateOpen(false);
       setFormData({
         customer_name: '',
@@ -212,7 +213,7 @@ export default function Contracts() {
     }
   };
 
-  // تصفية العقود
+  // تص  ية العقود
   const filteredContracts = contracts.filter(contract => {
     const matchesSearch = 
       contract.customer_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -398,7 +399,7 @@ export default function Contracts() {
             <div className="relative">
               <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="اب��ث في العقود..."
+                placeholder="اب  ث في العقود..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pr-10"
@@ -511,6 +512,8 @@ export default function Contracts() {
                           size="sm"
                           variant="ghost"
                           onClick={async () => {
+                            const w = window.open('', '_blank');
+                            if (!w) { alert('يرجى السماح بالنوافذ المنبثقة للطباعة'); return; }
                             try {
                               setPrinting(contract.id);
                               const details = await getContractWithBillboards(String(contract.id));
@@ -578,7 +581,7 @@ export default function Contracts() {
                               const drawOpts = (font: any, size: number) => ({ font: font, size, color: rgb(0,0,0) });
                               if (helv) {
                                 p0.drawText(`إيجار لمواقع إعلانية رقم: ${contractNumber}`, { x: 40, y: height - 120, ...drawOpts(helv, 12) });
-                                p0.drawText(`التاريخ: ${dateStr}`, { x: 40, y: height - 140, ...drawOpts(helv, 11) });
+                                p0.drawText(`التا  يخ: ${dateStr}`, { x: 40, y: height - 140, ...drawOpts(helv, 11) });
                                 p0.drawText(`الطرف الأول: ${partyOne}`, { x: 40, y: height - 170, ...drawOpts(helv, 11) });
                                 p0.drawText(`الطرف الثاني: ${partyTwo}`, { x: 40, y: height - 190, ...drawOpts(helv, 11) });
                                 p0.drawText(`قيمة العقد: ${total} د.ل`, { x: 40, y: height - 210, ...drawOpts(helv, 11) });
@@ -599,12 +602,11 @@ export default function Contracts() {
 
                               const billboards = (details as any)?.billboards || (details as any)?.items || (details as any)?.billboard_ids || [];
 
-                              if (Array.isArray(billboards) && billboards.length > 0) {
-                                // header
+                              if (helv && Array.isArray(billboards) && billboards.length > 0) {
                                 p1.drawText('اللوحة - الموقع - القياس - الوجوه - تاريخ الانتهاء', { x: 40, y: startY, size: 11, font: helv, color: rgb(0,0,0) });
                                 startY -= rowHeight;
                                 for (const b of billboards) {
-                                  if (startY < 60) break; // avoid overflow
+                                  if (startY < 60) break;
                                   const id = (b as any).id || (b as any).Contract_Number || (b as any).contract_number || (b as any)['Contract Number'] || String(b);
                                   const loc = ((b as any).location || (b as any)['location'] || (b as any)['Location'] || (b as any)['Customer Name'] || '') as string;
                                   const size = ((b as any).size || (b as any)['size'] || (b as any)['Size'] || '') as string;
@@ -620,7 +622,7 @@ export default function Contracts() {
                               const pdfBytes = await pdfDoc.save();
                               const blob = new Blob([pdfBytes], { type: 'application/pdf' });
                               const url = URL.createObjectURL(blob);
-                              window.open(url, '_blank');
+                              w.location.href = url;
 
                             } catch (e) {
                               console.error('print contract error', e);
@@ -633,6 +635,92 @@ export default function Contracts() {
                         >
                           طباعة
                         </Button>
+
+
+const PrintContractButton = ({ contract }: { contract: any }) => {
+  const handlePrint = async () => {
+    // الكود
+  };
+
+  return (
+    <Button onClick={handlePrint} className="h-8 px-2">
+      طباعة العقد
+    </Button>
+  );
+};
+
+
+      // 2) أنشئ نسخة جديدة
+      const pdfDoc = await PDFDocument.load(existingPdfBytes);
+      const pages = pdfDoc.getPages();
+      const firstPage = pages[0];
+      const { height } = firstPage.getSize();
+
+      // 3) عيّن الخط الافتراضي
+      const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+
+      // 4) اكتب البيانات فوق أماكنها (الإحداثيات تضبطها حسب ملفك الأصلي)
+      firstPage.drawText(`رقم العقد: ${contract.Contract_Number}`, {
+        x: 420,
+        y: height - 120,
+        size: 12,
+        font,
+        color: rgb(0, 0, 0),
+      });
+
+      firstPage.drawText(`الطرف الثاني: ${contract.customer_name}`, {
+        x: 420,
+        y: height - 160,
+        size: 12,
+        font,
+        color: rgb(0, 0, 0),
+      });
+
+      firstPage.drawText(`قيمة العقد: ${contract.rent_cost} د.ل`, {
+        x: 420,
+        y: height - 200,
+        size: 12,
+        font,
+        color: rgb(0, 0, 0),
+      });
+
+      // لو عندك صفحة ثانية للّوحات
+      if (pages[1] && Array.isArray(contract.billboards)) {
+        const page2 = pages[1];
+        let startY = height - 150;
+        for (const b of contract.billboards) {
+          page2.drawText(
+            `${b.Billboard_Name} - ${b.City} - ${b.Size} - ${b.Faces}`,
+            {
+              x: 50,
+              y: startY,
+              size: 10,
+              font,
+              color: rgb(0, 0, 0),
+            }
+          );
+          startY -= 20;
+        }
+      }
+
+      // 5) صدر الـ PDF الجديد
+      const pdfBytes = await pdfDoc.save();
+      const blob = new Blob([pdfBytes], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+      window.open(url, "_blank");
+    } catch (e) {
+      console.error(e);
+      toast.error("فشل في إنشاء العقد");
+    }
+  };
+
+  return (
+    <Button onClick={handlePrint} className="h-8 px-2">
+      طباعة العقد
+    </Button>
+  );
+}
+
                       </div>
                     </TableCell>
                   </TableRow>
@@ -696,7 +784,7 @@ export default function Contracts() {
                     <div className="space-y-2">
                       <p><strong>تاريخ البداية:</strong> {selectedContract.start_date ? new Date(selectedContract.start_date).toLocaleDateString('ar') : '—'}</p>
                       <p><strong>تاريخ النهاية:</strong> {selectedContract.end_date ? new Date(selectedContract.end_date).toLocaleDateString('ar') : '—'}</p>
-                      <p><strong>التكلفة الإجمالي��:</strong> {(selectedContract.rent_cost || 0).toLocaleString()} د.ل</p>
+                      <p><strong>التكلفة الإجمالي  :</strong> {(selectedContract.rent_cost || 0).toLocaleString()} د.ل</p>
                     </div>
                   </CardContent>
                 </Card>
