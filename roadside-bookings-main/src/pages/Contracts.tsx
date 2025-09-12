@@ -119,7 +119,7 @@ export default function Contracts() {
       }
 
       await createContract(formData);
-      toast.success('تم إنشاء ا��عقد بنجاح');
+      toast.success('تم إنشاء ا����قد بنجاح');
       setCreateOpen(false);
       setFormData({
         customer_name: '',
@@ -378,7 +378,7 @@ export default function Contracts() {
                         />
                       </div>
                       <div>
-                        <Label>المدة (بالأشهر)</Label>
+                        <Label>المدة (ب��لأشهر)</Label>
                         <Select value={String(durationMonths)} onValueChange={(v)=>setDurationMonths(Number(v))}>
                           <SelectTrigger><SelectValue placeholder="اختر المدة" /></SelectTrigger>
                           <SelectContent>
@@ -703,66 +703,89 @@ export default function Contracts() {
                               const dateStr = (details?.['Contract Date'] || contract.contract_date || contract.start_date) ? new Date(details?.['Contract Date'] || contract.contract_date || contract.start_date).toLocaleDateString('ar-LY') : '';
                               const total = (details?.total_rent || details?.['Total Rent'] || contract.rent_cost || 0).toLocaleString();
 
-                              // draw some header text (positions may need tuning)
+                              // Helpers
                               const drawOpts = (font: any, size: number) => ({ font: font, size, color: rgb(0,0,0) });
-
-                              // ASCII-safe fallbacks: strip non-ASCII characters to avoid WinAnsi errors
                               const toAscii = (s: any) => String(s ?? '').replace(/[^\x00-\x7F]/g, '');
-                              const contractNumberAscii = toAscii(contractNumber);
-                              const partyTwoAscii = toAscii(partyTwo);
-                              const partyOneAscii = toAscii(partyOne);
-                              const dateStrAscii = toAscii(dateStr);
-                              const totalAscii = toAscii(total);
+                              const measure = (text: string, size: number) => (helv ? helv.widthOfTextAtSize(text, size) : 0);
+                              const drawAt = (page: any, text: string, x: number, y: number, size = 11, align: 'left' | 'right' = 'left') => {
+                                const safeText = helv ? text : toAscii(text);
+                                if (align === 'right') {
+                                  const w = measure(safeText, size);
+                                  const xPos = w ? x - w : x;
+                                  helv ? page.drawText(safeText, { x: xPos, y, ...drawOpts(helv, size) }) : page.drawText(safeText, { x: xPos, y, size, color: rgb(0,0,0) });
+                                } else {
+                                  helv ? page.drawText(safeText, { x, y, ...drawOpts(helv, size) }) : page.drawText(safeText, { x, y, size, color: rgb(0,0,0) });
+                                }
+                              };
 
-                              if (helv) {
-                                p0.drawText(`إيجار لمواقع إعلانية رقم: ${contractNumber}`, { x: 40, y: height - 120, ...drawOpts(helv, 12) });
-                                p0.drawText(`التاريخ: ${dateStr}`, { x: 40, y: height - 140, ...drawOpts(helv, 11) });
-                                p0.drawText(`الطرف الأول: ${partyOne}`, { x: 40, y: height - 170, ...drawOpts(helv, 11) });
-                                p0.drawText(`الطرف الثاني: ${partyTwo}`, { x: 40, y: height - 190, ...drawOpts(helv, 11) });
-                                p0.drawText(`قي��ة العقد: ${total} د.ل`, { x: 40, y: height - 210, ...drawOpts(helv, 11) });
-                              } else {
-                                // fallback: draw ascii-only placeholders (sanitized)
-                                p0.drawText(`Contract: ${contractNumberAscii}`, { x: 40, y: height - 120, size: 12, color: rgb(0,0,0) });
-                                p0.drawText(`Date: ${dateStrAscii}`, { x: 40, y: height - 140, size: 11, color: rgb(0,0,0) });
-                                p0.drawText(`Party 1: ${partyOneAscii}`, { x: 40, y: height - 170, size: 11, color: rgb(0,0,0) });
-                                p0.drawText(`Party 2: ${partyTwoAscii}`, { x: 40, y: height - 190, size: 11, color: rgb(0,0,0) });
-                                p0.drawText(`Total: ${totalAscii} LYD`, { x: 40, y: height - 210, size: 11, color: rgb(0,0,0) });
-                              }
+                              // Derive printable fields
+                              const phone = details?.phone || details?.['Phone'] || details?.['Phone Number'] || (contract as any).phone || '';
+                              const company = (details?.company || details?.Company || details?.['Company Name'] || (contract as any).company || '') as string;
+                              const adType = (details?.['Ad Type'] || contract.ad_type || '') as string;
+                              const start = details?.['Contract Date'] || contract.contract_date || contract.start_date || '';
+                              const end = details?.['End Date'] || contract.end_date || '';
+                              const months = (() => {
+                                if (!start || !end) return '';
+                                const s = new Date(start); const e = new Date(end);
+                                const m = (e.getFullYear() - s.getFullYear()) * 12 + (e.getMonth() - s.getMonth()) + (e.getDate() >= s.getDate() ? 0 : -1);
+                                return String(Math.max(m, 0));
+                              })();
 
-                              // Page 1: table of billboards
+                              // Positions on page 1 (index 0). Adjust if template changes
+                              const pos = {
+                                adType: { x: width - 80, y: height - 180, align: 'right' as const },
+                                customerName: { x: width - 80, y: height - 210, align: 'right' as const },
+                                phone: { x: width - 80, y: height - 240, align: 'right' as const },
+                                company: { x: width - 80, y: height - 270, align: 'right' as const },
+                                contractDate: { x: width - 80, y: height - 300, align: 'right' as const },
+                                durationStart: { x: width - 80, y: height - 330, align: 'right' as const },
+                                durationMonths: { x: width - 80, y: height - 360, align: 'right' as const },
+                                durationEnd: { x: width - 80, y: height - 390, align: 'right' as const },
+                                totalCost: { x: width - 80, y: height - 420, align: 'right' as const },
+                              };
+
+                              // Draw header fields aligned to the right edge of their boxes
+                              drawAt(p0, adType, pos.adType.x, pos.adType.y, 12, 'right');
+                              drawAt(p0, partyTwo, pos.customerName.x, pos.customerName.y, 12, 'right');
+                              drawAt(p0, phone, pos.phone.x, pos.phone.y, 12, 'right');
+                              drawAt(p0, company, pos.company.x, pos.company.y, 12, 'right');
+                              drawAt(p0, dateStr, pos.contractDate.x, pos.contractDate.y, 12, 'right');
+                              drawAt(p0, start ? new Date(start).toLocaleDateString('ar-LY') : '', pos.durationStart.x, pos.durationStart.y, 12, 'right');
+                              drawAt(p0, months, pos.durationMonths.x, pos.durationMonths.y, 12, 'right');
+                              drawAt(p0, end ? new Date(end).toLocaleDateString('ar-LY') : '', pos.durationEnd.x, pos.durationEnd.y, 12, 'right');
+                              drawAt(p0, helv ? `${total} د.ل` : `${toAscii(total)} LYD`, pos.totalCost.x, pos.totalCost.y, 12, 'right');
+
+                              // Page 2: billboards table
                               const p1 = pages.length > 1 ? pages[1] : pages[0];
                               const { width: w1, height: h1 } = p1.getSize();
-                              let startY = h1 - 160;
-                              const rowHeight = 18;
+                              const table = { startX: 40, startY: h1 - 160, rowH: 18, cols: [120, 220, 280, 320, 420] };
 
                               const billboards = details?.billboards || details?.items || details?.billboard_ids || [];
 
                               if (Array.isArray(billboards) && billboards.length > 0) {
-                                // header (use Arabic if unicode font is available, otherwise ASCII)
-                                const headerArabic = 'اللوحة - الموقع - القياس - الوجوه - تاريخ الانتهاء';
-                                const headerAscii = 'Billboard - Location - Size - Faces - End Date';
-                                if (helv) {
-                                  p1.drawText(headerArabic, { x: 40, y: startY, size: 11, font: helv, color: rgb(0,0,0) });
-                                } else {
-                                  p1.drawText(headerAscii, { x: 40, y: startY, size: 11, color: rgb(0,0,0) });
+                                const headerArabic = ['اللوحة', 'الموقع', 'القياس', 'الوجوه', 'تاريخ الانتهاء'];
+                                const headerAscii = ['Billboard', 'Location', 'Size', 'Faces', 'End Date'];
+                                const headers = helv ? headerArabic : headerAscii;
+                                for (let i = 0; i < headers.length; i++) {
+                                  const x = table.cols[i] || (table.startX + i * 100);
+                                  const text = headers[i];
+                                  helv ? p1.drawText(text, { x, y: table.startY, ...drawOpts(helv, 11) }) : p1.drawText(toAscii(text), { x, y: table.startY, size: 11, color: rgb(0,0,0) });
                                 }
-                                startY -= rowHeight;
+                                let y = table.startY - table.rowH;
                                 for (const b of billboards) {
-                                  if (startY < 60) break; // avoid overflow
+                                  if (y < 60) break;
                                   const id = b.id || b.Contract_Number || b.contract_number || b['Contract Number'] || String(b);
                                   const loc = (b.location || b['location'] || b['Location'] || b['Customer Name'] || '') as string;
                                   const size = (b.size || b['size'] || b['Size'] || '') as string;
                                   const faces = (b.faces || b['faces'] || b['Faces'] || '') as string;
                                   const endDate = b.end_date || b['End Date'] || '';
                                   const endStr = endDate ? new Date(endDate).toLocaleDateString('ar-LY') : '';
-                                  const lineArabic = `${id} - ${loc} - ${size} - ${faces} - ${endStr}`;
-                                  const lineAscii = `${id} - ${String(loc).replace(/[^\x00-\x7F]/g, '')} - ${size} - ${faces} - ${endStr}`;
-                                  if (helv) {
-                                    p1.drawText(lineArabic, { x: 40, y: startY, size: 10, font: helv, color: rgb(0,0,0) });
-                                  } else {
-                                    p1.drawText(lineAscii, { x: 40, y: startY, size: 10, color: rgb(0,0,0) });
+                                  const row = helv ? [String(id), String(loc), String(size), String(faces), String(endStr)] : [toAscii(String(id)), toAscii(String(loc)), toAscii(String(size)), toAscii(String(faces)), toAscii(String(endStr))];
+                                  for (let i = 0; i < row.length; i++) {
+                                    const x = table.cols[i] || (table.startX + i * 100);
+                                    helv ? p1.drawText(row[i], { x, y, ...drawOpts(helv, 10) }) : p1.drawText(row[i], { x, y, size: 10, color: rgb(0,0,0) });
                                   }
-                                  startY -= rowHeight;
+                                  y -= table.rowH;
                                 }
                               }
 
@@ -845,7 +868,7 @@ export default function Contracts() {
                   <CardContent>
                     <div className="space-y-2">
                       <p><strong>تاريخ البداية:</strong> {selectedContract.start_date ? new Date(selectedContract.start_date).toLocaleDateString('ar') : '—'}</p>
-                      <p><strong>��اريخ النهاية:</strong> {selectedContract.end_date ? new Date(selectedContract.end_date).toLocaleDateString('ar') : '—'}</p>
+                      <p><strong>���اريخ النهاية:</strong> {selectedContract.end_date ? new Date(selectedContract.end_date).toLocaleDateString('ar') : '—'}</p>
                       <p><strong>ا��تكلفة الإجمالية:</strong> {(selectedContract.rent_cost || 0).toLocaleString()} د.ل</p>
                     </div>
                   </CardContent>
