@@ -140,7 +140,7 @@ export default function Contracts() {
   };
 
   const handleDeleteContract = async (contractId: string) => {
-    if (window.confirm('هل أنت متأكد من حذف هذا العقد؟')) {
+    if (window.confirm('هل أنت متأكد م�� حذف هذا العقد؟')) {
       try {
         await deleteContract(contractId);
         toast.success('تم حذف العقد بنجاح');
@@ -693,19 +693,28 @@ export default function Contracts() {
 
                               // draw some header text (positions may need tuning)
                               const drawOpts = (font: any, size: number) => ({ font: font, size, color: rgb(0,0,0) });
+
+                              // ASCII-safe fallbacks: strip non-ASCII characters to avoid WinAnsi errors
+                              const toAscii = (s: any) => String(s ?? '').replace(/[^\x00-\x7F]/g, '');
+                              const contractNumberAscii = toAscii(contractNumber);
+                              const partyTwoAscii = toAscii(partyTwo);
+                              const partyOneAscii = toAscii(partyOne);
+                              const dateStrAscii = toAscii(dateStr);
+                              const totalAscii = toAscii(total);
+
                               if (helv) {
-                                p0.drawText(`إيجار لمواقع إعلانية ��قم: ${contractNumber}`, { x: 40, y: height - 120, ...drawOpts(helv, 12) });
+                                p0.drawText(`إيجار لمواقع إعلانية رقم: ${contractNumber}`, { x: 40, y: height - 120, ...drawOpts(helv, 12) });
                                 p0.drawText(`التاريخ: ${dateStr}`, { x: 40, y: height - 140, ...drawOpts(helv, 11) });
                                 p0.drawText(`الطرف الأول: ${partyOne}`, { x: 40, y: height - 170, ...drawOpts(helv, 11) });
                                 p0.drawText(`الطرف الثاني: ${partyTwo}`, { x: 40, y: height - 190, ...drawOpts(helv, 11) });
                                 p0.drawText(`قي��ة العقد: ${total} د.ل`, { x: 40, y: height - 210, ...drawOpts(helv, 11) });
                               } else {
-                                // fallback: draw ascii-only placeholders
-                                p0.drawText(`Contract: ${contractNumber}`, { x: 40, y: height - 120, size: 12, color: rgb(0,0,0) });
-                                p0.drawText(`Date: ${dateStr}`, { x: 40, y: height - 140, size: 11, color: rgb(0,0,0) });
-                                p0.drawText(`Party 1: ${partyOne}`, { x: 40, y: height - 170, size: 11, color: rgb(0,0,0) });
-                                p0.drawText(`Party 2: ${partyTwo}`, { x: 40, y: height - 190, size: 11, color: rgb(0,0,0) });
-                                p0.drawText(`Total: ${total} LYD`, { x: 40, y: height - 210, size: 11, color: rgb(0,0,0) });
+                                // fallback: draw ascii-only placeholders (sanitized)
+                                p0.drawText(`Contract: ${contractNumberAscii}`, { x: 40, y: height - 120, size: 12, color: rgb(0,0,0) });
+                                p0.drawText(`Date: ${dateStrAscii}`, { x: 40, y: height - 140, size: 11, color: rgb(0,0,0) });
+                                p0.drawText(`Party 1: ${partyOneAscii}`, { x: 40, y: height - 170, size: 11, color: rgb(0,0,0) });
+                                p0.drawText(`Party 2: ${partyTwoAscii}`, { x: 40, y: height - 190, size: 11, color: rgb(0,0,0) });
+                                p0.drawText(`Total: ${totalAscii} LYD`, { x: 40, y: height - 210, size: 11, color: rgb(0,0,0) });
                               }
 
                               // Page 1: table of billboards
