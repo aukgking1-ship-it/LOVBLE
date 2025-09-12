@@ -333,7 +333,7 @@ export default function Contracts() {
           </DialogTrigger>
           <DialogContent className="max-w-6xl">
             <DialogHeader>
-              <DialogTitle>إنشا�� عقد جديد</DialogTitle>
+              <DialogTitle>إنشاء عقد جديد</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 mt-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -594,7 +594,7 @@ export default function Contracts() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5 text-primary" />
-            قائمة العقود ({filteredContracts.length} من {contracts.length})
+            قائمة العق��د ({filteredContracts.length} من {contracts.length})
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -672,20 +672,22 @@ export default function Contracts() {
                               // template PDF from public folder
                               const templateUrl = '/contract-template.pdf';
                               const res = await fetch(templateUrl);
-                              if (!res.ok) throw new Error('لم يتم العثور على قالب العقد في المجلد العام');
+                              if (!res.ok) throw new Error('لم يتم العثور على قالب العقد في المجلد العا��');
                               const existingPdfBytes = await res.arrayBuffer();
 
                               const pdfDoc = await PDFDocument.load(existingPdfBytes);
                               const pages = pdfDoc.getPages();
-                              // Embed a Unicode-capable Arabic font (Noto Sans Arabic)
-                              const fontUrl = 'https://fonts.gstatic.com/s/noto/v14/NotoSansArabic-Regular.ttf';
+                              // Embed a Unicode-capable Arabic font (Noto Sans Arabic) from public folder
+                              const fontUrl = '/fonts/NotoSansArabic-Regular.ttf';
                               let helv: any = undefined;
                               try {
-                                const fontBytes = await fetch(fontUrl).then(r => r.arrayBuffer());
+                                const fontRes = await fetch(fontUrl);
+                                if (!fontRes.ok) throw new Error('missing local TTF');
+                                const fontBytes = await fontRes.arrayBuffer();
                                 helv = await pdfDoc.embedFont(fontBytes);
                               } catch (err) {
-                                // Unable to embed unicode Arabic font; leave `helv` undefined so we use ASCII fallbacks.
-                                console.warn('Could not embed Arabic font, falling back to ASCII placeholders', err);
+                                console.warn('Arabic font not available, using ASCII fallback', err);
+                                try { toast.warning('الخط العربي غير متوفر: أضف NotoSansArabic-Regular.ttf إلى public/fonts لاستخدام الطباعة العربية'); } catch {}
                                 helv = undefined;
                               }
 
@@ -726,7 +728,7 @@ export default function Contracts() {
                               }
 
                               // Page 1: table of billboards
-                              const p1 = pages[1] || pages[0];
+                              const p1 = pages.length > 1 ? pages[1] : pages[0];
                               const { width: w1, height: h1 } = p1.getSize();
                               let startY = h1 - 160;
                               const rowHeight = 18;
