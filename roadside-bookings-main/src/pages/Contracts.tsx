@@ -314,7 +314,7 @@ export default function Contracts() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground">إدارة العقود</h1>
-          <p className="text-muted-foreground">إنشاء وإدارة عقود الإيجار مع اللوحات الإعلانية</p>
+          <p className="text-muted-foreground">إنشاء وإدارة عقود ال��يجار مع اللوحات الإعلانية</p>
         </div>
         <Dialog open={createOpen} onOpenChange={setCreateOpen}>
           <DialogTrigger asChild>
@@ -385,7 +385,7 @@ export default function Contracts() {
                       <div>
                         <Label>التكلف�� التقديرية</Label>
                         <Input type="number" value={formData.rent_cost} onChange={(e)=>setFormData({...formData, rent_cost: Number(e.target.value)})} />
-                        <div className="text-xs text-muted-foreground mt-1">يتم تحديثها تلقائياً حسب الفئة والمدة وعدد اللوحات</div>
+                        <div className="text-xs text-muted-foreground mt-1">يتم ��حديثها تلقائياً حسب الفئة والمدة وعدد اللوحات</div>
                       </div>
                     </CardContent>
                   </Card>
@@ -671,13 +671,14 @@ export default function Contracts() {
                               const pages = pdfDoc.getPages();
                               // Embed a Unicode-capable Arabic font (Noto Sans Arabic)
                               const fontUrl = 'https://fonts.gstatic.com/s/noto/v14/NotoSansArabic-Regular.ttf';
-                              let helv: any;
+                              let helv: any = undefined;
                               try {
                                 const fontBytes = await fetch(fontUrl).then(r => r.arrayBuffer());
                                 helv = await pdfDoc.embedFont(fontBytes);
                               } catch (err) {
-                                // fallback to builtin font if fetch fails (will not support Arabic properly)
-                                try { helv = await pdfDoc.embedFont(StandardFonts.Helvetica); } catch { helv = undefined; }
+                                // Unable to embed unicode Arabic font; leave `helv` undefined so we use ASCII fallbacks.
+                                console.warn('Could not embed Arabic font, falling back to ASCII placeholders', err);
+                                helv = undefined;
                               }
 
                               // Page 0: header fields
@@ -716,8 +717,14 @@ export default function Contracts() {
                               const billboards = details?.billboards || details?.items || details?.billboard_ids || [];
 
                               if (Array.isArray(billboards) && billboards.length > 0) {
-                                // header
-                                p1.drawText('اللوحة - الموقع - القياس - الوجوه - تاريخ الانتهاء', { x: 40, y: startY, size: 11, font: helv, color: rgb(0,0,0) });
+                                // header (use Arabic if unicode font is available, otherwise ASCII)
+                                const headerArabic = 'اللوحة - الموقع - القياس - الوجوه - تاريخ الانتهاء';
+                                const headerAscii = 'Billboard - Location - Size - Faces - End Date';
+                                if (helv) {
+                                  p1.drawText(headerArabic, { x: 40, y: startY, size: 11, font: helv, color: rgb(0,0,0) });
+                                } else {
+                                  p1.drawText(headerAscii, { x: 40, y: startY, size: 11, color: rgb(0,0,0) });
+                                }
                                 startY -= rowHeight;
                                 for (const b of billboards) {
                                   if (startY < 60) break; // avoid overflow
@@ -727,8 +734,13 @@ export default function Contracts() {
                                   const faces = (b.faces || b['faces'] || b['Faces'] || '') as string;
                                   const endDate = b.end_date || b['End Date'] || '';
                                   const endStr = endDate ? new Date(endDate).toLocaleDateString('ar-LY') : '';
-                                  const line = `${id} - ${loc} - ${size} - ${faces} - ${endStr}`;
-                                  p1.drawText(line, { x: 40, y: startY, size: 10, font: helv, color: rgb(0,0,0) });
+                                  const lineArabic = `${id} - ${loc} - ${size} - ${faces} - ${endStr}`;
+                                  const lineAscii = `${id} - ${String(loc).replace(/[^\x00-\x7F]/g, '')} - ${size} - ${faces} - ${endStr}`;
+                                  if (helv) {
+                                    p1.drawText(lineArabic, { x: 40, y: startY, size: 10, font: helv, color: rgb(0,0,0) });
+                                  } else {
+                                    p1.drawText(lineAscii, { x: 40, y: startY, size: 10, color: rgb(0,0,0) });
+                                  }
                                   startY -= rowHeight;
                                 }
                               }
@@ -762,7 +774,7 @@ export default function Contracts() {
             <div className="text-center py-8">
               <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-foreground mb-2">لا توجد نتائج</h3>
-              <p className="text-muted-foreground">لم يتم العثور على عقود تطابق معايير البحث</p>
+              <p className="text-muted-foreground">لم يتم العثور على عقو�� تطابق معايير البحث</p>
             </div>
           )}
 
