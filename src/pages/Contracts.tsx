@@ -124,7 +124,7 @@ export default function Contracts() {
       loadData();
     } catch (error) {
       console.error('خطأ في إنشاء العقد:', error);
-      toast.error('فشل في إنشاء العقد');
+      toast.error('ف��ل في إنشاء العقد');
     }
   };
 
@@ -661,9 +661,11 @@ export default function Contracts() {
                               setPrinting(contract.id);
                               const details = await getContractWithBillboards(String(contract.id));
 
-                              // template PDF URL (from uploaded file)
-                              const templateUrl = 'https://cdn.builder.io/o/assets%2Fb496a75bf3a847fbbb30839d00fe0721%2F66e10faf2c4d44f787d0db0b9079715c?alt=media&token=205fc1ff-ab26-46fd-bdd1-9ab5ee566add&apiKey=b496a75bf3a847fbbb30839d00fe0721';
-                              const existingPdfBytes = await fetch(templateUrl).then(r => r.arrayBuffer());
+                              // template PDF from public folder
+                              const templateUrl = '/contract-template.pdf';
+                              const res = await fetch(templateUrl);
+                              if (!res.ok) throw new Error('لم يتم العثور على قالب العقد في المجلد العام');
+                              const existingPdfBytes = await res.arrayBuffer();
 
                               const pdfDoc = await PDFDocument.load(existingPdfBytes);
                               const pages = pdfDoc.getPages();
