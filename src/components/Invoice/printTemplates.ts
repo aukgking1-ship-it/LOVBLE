@@ -33,7 +33,7 @@ export type OfferMeta = {
 export function buildAlFaresOfferHtml(items: Billboard[], meta: OfferMeta) {
   const months = meta.months;
   const customer = meta.customer || CUSTOMERS[0];
-  const companyName = meta.companyName || 'شركة الفارس الذهبي للدعاية والإعلان';
+  const companyName = meta.companyName || 'شركة الفا��س الذهبي للدعاية والإعلان';
   const companyAddress = meta.companyAddress || 'طرابلس – طريق المطار، حي الزهور';
   const companyRep = meta.companyRep || 'جمال امحمد زحيلق (المدير العام)';
   const iban = meta.iban || 'LY15014051021405100053401';
@@ -254,7 +254,7 @@ export function buildBgc2OfferHtml(items: any[], meta: OfferMeta) {
   const rowH = 13.818; // mm
   const pageH = 297; // A4 mm
   const usableH = pageH - startY; // from startY to bottom
-  const rowsPerPage = Math.max(1, Math.floor(usableH / rowH)) - 1; // minus header row
+  const rowsPerPage = Math.max(1, Math.floor(usableH / rowH));
 
   const buildRow = (b: any) => {
     const size = b.Size || b.size || '';
@@ -296,18 +296,6 @@ export function buildBgc2OfferHtml(items: any[], meta: OfferMeta) {
     const page = `
       <div class="page">
         <div class="tableArea">
-          <div class="row header-row">
-            <div class="c code">رقم اللوحة</div>
-            <div class="c img">صورة</div>
-            <div class="c muni">البلدية</div>
-            <div class="c district">المنطقة</div>
-            <div class="c landmark">أقرب نقطة دالة</div>
-            <div class="c size">المقاس</div>
-            <div class="c faces">عدد الوجوه</div>
-            <div class="c price">السعر</div>
-            <div class="c duration">المدة</div>
-            <div class="c link">الإحداثي</div>
-          </div>
           ${rowsHtml}
         </div>
       </div>`;
@@ -322,10 +310,8 @@ export function buildBgc2OfferHtml(items: any[], meta: OfferMeta) {
     body { background: #000 url('/bgc2.jpg') no-repeat center top; background-size: cover; font-family: 'Cairo','Tajawal', system-ui, sans-serif; }
     .page { position: relative; width: 210mm; height: 297mm; page-break-after: always; }
     .tableArea { position: absolute; top: ${startY}mm; left: calc(${startX}mm - ${rowW/2}mm); width: ${rowW}mm; }
-    .row { display: grid; grid-template-columns: 22mm 18mm 18mm 18mm 34mm 16mm 16mm 18mm 14mm 16mm; align-items: center; width: ${rowW}mm; height: ${rowH}mm; box-sizing: border-box; padding: 1.5mm 2mm; backdrop-filter: blur(0.5mm); }
-    .header-row { font-weight: 800; background: rgba(255,255,255,0.9); border-radius: 2mm; margin-bottom: 1mm; }
-    .row:not(.header-row) { background: rgba(255,255,255,0.8); border-radius: 1.5mm; margin-bottom: 1mm; }
-    .c { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 3.2mm; color: #111; padding-inline: 1mm; }
+    .row { display: grid; grid-template-columns: 10% 10% 10% 10% 20% 8% 8% 10% 7% 7%; align-items: center; width: ${rowW}mm; height: ${rowH}mm; box-sizing: border-box; padding: 0 1.5mm; background: transparent; margin: 0; }
+            .c { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 3.2mm; color: #111; padding-inline: 1mm; }
     .price, .duration, .faces, .size { text-align: center; }
     a { color: #0a58ca; text-decoration: none; }
     a:hover { text-decoration: underline; }
