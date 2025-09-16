@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Search, Calendar, User, Printer, FilePlus } from 'lucide-react';
 import { loadBillboards } from '@/services/billboardService';
 import type { Billboard } from '@/types';
-import { getPriceFor, CustomerType } from '@/data/pricing';
+import { getPriceFor, CustomerType, CUSTOMERS } from '@/data/pricing';
 import { toast } from '@/components/ui/sonner';
 import { createOffer } from '@/services/offersService';
 import { buildBgc2OfferHtml } from '@/components/Invoice/printTemplates';
@@ -119,6 +119,7 @@ export default function Offers() {
         size: b.Size || b.size || '',
         faces: b.Faces_Count || '1',
         price: priceForBoard(b),
+        pricing_category: pricingCategory,
         coords: b.GPS_Coordinates || b.coordinates || '',
         img: b.Image_URL || b.image || '',
       }));
@@ -219,14 +220,6 @@ export default function Offers() {
                     <SelectItem value="rented">المؤجرة</SelectItem>
                   </SelectContent>
                 </Select>
-                <Select value={pricingCategory} onValueChange={(v)=>setPricingCategory(v as any)}>
-                  <SelectTrigger className="w-[160px]"><SelectValue placeholder="فئة السعر" /></SelectTrigger>
-                  <SelectContent>
-                    {['عادي','مسوق','شركات','المدينة'].map((c) => (
-                      <SelectItem key={c} value={c}>{c}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
               </div>
             </CardContent>
           </Card>
@@ -292,6 +285,17 @@ export default function Offers() {
                   <SelectContent>
                     {[1,2,3,6,12].map((m)=> (
                       <SelectItem key={m} value={String(m)}>{m === 12 ? 'سنة' : `${m} شهر`}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm">فئة السعر</label>
+                <Select value={pricingCategory} onValueChange={(v)=>setPricingCategory(v as any)}>
+                  <SelectTrigger><SelectValue placeholder="الفئة" /></SelectTrigger>
+                  <SelectContent>
+                    {CUSTOMERS.map((c) => (
+                      <SelectItem key={c} value={c}>{c}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
