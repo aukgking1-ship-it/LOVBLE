@@ -17,6 +17,7 @@ const sidebarItems = [
   { id: 'expenses', label: 'المصروفات', icon: DollarSign, path: '/admin/expenses' },
   { id: 'payments', label: 'الدفعات والإيصالات', icon: DollarSign, path: '/admin/payments' },
   { id: 'reports', label: 'التقارير والإحصائيات', icon: BarChart3, path: '/admin/reports' },
+  { id: 'offers', label: 'العروض', icon: FileText, path: '/admin/offers' },
   { id: 'contracts', label: 'العقود', icon: FileText, path: '/admin/contracts' },
   { id: 'settings', label: 'الإعدادات', icon: Settings, path: '/admin/settings' },
 ];
