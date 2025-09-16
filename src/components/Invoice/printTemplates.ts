@@ -111,7 +111,7 @@ export function buildAlFaresOfferHtml(items: Billboard[], meta: OfferMeta) {
     <div class="box">
       <p>نظراً لرغبة الطرف الثاني في استئجار مساحات إعلانية من الطرف الأول، تم الاتفاق على الشروط التالية.</p>
       <p>قيمة العقد ${formatCurrency(grand)} بدون طباعة؛ تُدفع نصف القيمة عند توقيع العقد والنصف الآخر بعد التركي��، وإذا تأخر السداد عن 30 يوماً يحق للطرف الأول إعادة تأجير المساحات.</p>
-      <p>مدة العقد ${period} تبدأ من ${fmt(new Date(), 'yyyy/MM/dd')} وتنتهي في ${endDateText} ويجوز تجديده برضى الطرفين.</p>
+      <p>مدة العقد ${period} تبدأ من ${fmt(new Date(), 'yyyy/MM/dd')} وتنتهي في ${endDateText} ويجوز تجديده برضى الط��فين.</p>
     </div>
 
     <table>
@@ -240,5 +240,98 @@ export function buildMinimalOfferHtml(items: Billboard[], meta: OfferMeta & { lo
       </table>
     </div>
     <script>window.onload=()=>{try{window.print();}catch(e){setTimeout(()=>window.print(),300);}}</script>
+  </body></html>`;
+}
+
+export function buildBgc2OfferHtml(items: any[], meta: OfferMeta) {
+  const months = meta.months || 1;
+  const customer = meta.customer || CUSTOMERS[0];
+  const durationText = months === 12 ? 'سنة' : `${months} شهر`;
+
+  const startX = 105; // mm (center)
+  const startY = 63.53; // mm
+  const rowW = 184.247; // mm
+  const rowH = 13.818; // mm
+  const pageH = 297; // A4 mm
+  const usableH = pageH - startY; // from startY to bottom
+  const rowsPerPage = Math.max(1, Math.floor(usableH / rowH)) - 1; // minus header row
+
+  const buildRow = (b: any) => {
+    const size = b.Size || b.size || '';
+    const level = b.Level || b.level;
+    const unit = getPriceFor(size, level, customer as any, months) ?? 0;
+    const muni = b.Municipality || b.municipality || '';
+    const district = b.District || b.district || '';
+    const landmark = b.Nearest_Landmark || b.location || '';
+    const faces = b.Faces_Count || '1';
+    const code = b.Billboard_Name || b.name || b.id || '';
+    const url = (() => {
+      const coords = b.GPS_Coordinates || b.coordinates || '';
+      if (typeof coords === 'string' && coords.includes(',')) {
+        const [lat, lng] = coords.split(',').map((c: string) => c.trim());
+        if (lat && lng) return `https://www.google.com/maps?q=${encodeURIComponent(lat)},${encodeURIComponent(lng)}`;
+      }
+      return b.GPS_Link || 'https://www.google.com/maps';
+    })();
+    const img = (b.Image_URL || b.image) ? `<img src="${b.Image_URL || b.image}" style="height:11mm;width:auto;object-fit:cover;border-radius:2mm"/>` : '';
+
+    return `<div class="row">
+      <div class="c code">${code}</div>
+      <div class="c img">${img}</div>
+      <div class="c muni">${muni}</div>
+      <div class="c district">${district}</div>
+      <div class="c landmark">${landmark}</div>
+      <div class="c size">${size}</div>
+      <div class="c faces">${faces}</div>
+      <div class="c price">${(unit || 0).toLocaleString('ar-LY')} د.ل</div>
+      <div class="c duration">${durationText}</div>
+      <div class="c link"><a href="${url}">اضغط هنا</a></div>
+    </div>`;
+  };
+
+  const pages: string[] = [];
+  for (let i = 0; i < items.length; i += rowsPerPage) {
+    const slice = items.slice(i, i + rowsPerPage);
+    const rowsHtml = slice.map(buildRow).join('');
+    const page = `
+      <div class="page">
+        <div class="tableArea">
+          <div class="row header-row">
+            <div class="c code">رقم اللوحة</div>
+            <div class="c img">صورة</div>
+            <div class="c muni">البلدية</div>
+            <div class="c district">المنطقة</div>
+            <div class="c landmark">أقرب نقطة دالة</div>
+            <div class="c size">المقاس</div>
+            <div class="c faces">عدد الوجوه</div>
+            <div class="c price">السعر</div>
+            <div class="c duration">المدة</div>
+            <div class="c link">الإحداثي</div>
+          </div>
+          ${rowsHtml}
+        </div>
+      </div>`;
+    pages.push(page);
+  }
+
+  return `<!doctype html><html dir=\"rtl\" lang=\"ar\"><head><meta charset=\"utf-8\"/>
+  <title>عرض سعر</title>
+  <style>
+    @page { size: A4; margin: 0; }
+    html, body { width: 210mm; height: 297mm; margin: 0; padding: 0; }
+    body { background: #000 url('/bgc2.jpg') no-repeat center top; background-size: cover; font-family: 'Cairo','Tajawal', system-ui, sans-serif; }
+    .page { position: relative; width: 210mm; height: 297mm; page-break-after: always; }
+    .tableArea { position: absolute; top: ${startY}mm; left: calc(${startX}mm - ${rowW/2}mm); width: ${rowW}mm; }
+    .row { display: grid; grid-template-columns: 22mm 18mm 18mm 18mm 34mm 16mm 16mm 18mm 14mm 16mm; align-items: center; width: ${rowW}mm; height: ${rowH}mm; box-sizing: border-box; padding: 1.5mm 2mm; backdrop-filter: blur(0.5mm); }
+    .header-row { font-weight: 800; background: rgba(255,255,255,0.9); border-radius: 2mm; margin-bottom: 1mm; }
+    .row:not(.header-row) { background: rgba(255,255,255,0.8); border-radius: 1.5mm; margin-bottom: 1mm; }
+    .c { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 3.2mm; color: #111; padding-inline: 1mm; }
+    .price, .duration, .faces, .size { text-align: center; }
+    a { color: #0a58ca; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    @media print { .page { box-shadow: none; } }
+  </style></head><body>
+    ${pages.join('')}
+    <script>window.onload=()=>{try{window.print()}catch(e){setTimeout(()=>window.print(),300)}};</script>
   </body></html>`;
 }
