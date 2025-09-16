@@ -24,6 +24,7 @@ import BookingRequests from "./pages/BookingRequests";
 import SharedBillboards from "./pages/SharedBillboards";
 import SharedCompanies from "./pages/SharedCompanies";
 import Payments from "./pages/Payments";
+import Offers from "./pages/Offers";
 import { MainLayout } from "@/components/Layout/MainLayout";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
@@ -185,6 +186,16 @@ const App = () => (
                 <ProtectedRoute requireAdmin>
                   <MainLayout>
                     <Payments />
+                  </MainLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/offers"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <MainLayout>
+                    <Offers />
                   </MainLayout>
                 </ProtectedRoute>
               }
