@@ -137,7 +137,7 @@ export default function Offers() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground">إنشاء عرض سعر</h1>
-          <p className="text-muted-foreground">اختر اللوحات واطبع عرض السعر بدون إنشاء عقد</p>
+          <p className="text-muted-foreground">اختر اللوحات واطبع عرض السعر بدون إنشاء عق��</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handlePrintOffer} className="gap-2">
@@ -167,11 +167,16 @@ export default function Offers() {
                         {(b.image || b.Image_URL) && (
                           <img src={(b.image || b.Image_URL)} alt={(b.name || b.Billboard_Name)} className="w-full h-36 object-cover" />
                         )}
-                        <div className="p-3 space-y-1">
-                          <div className="font-semibold">{b.name || b.Billboard_Name}</div>
-                          <div className="text-xs text-muted-foreground">{b.location || b.Nearest_Landmark}</div>
-                          <div className="text-xs">{(b.city || b.City)} • {(b.size || b.Size)}</div>
-                          <div className="text-sm font-medium">{priceForBoard(b).toLocaleString('ar-LY')} د.ل / {durationMonths === 12 ? 'سنة' : `${durationMonths} شهر`}</div>
+                        <div className="p-3 space-y-2">
+                          <div>
+                            <div className="font-semibold">{b.name || b.Billboard_Name}</div>
+                            <div className="text-xs text-muted-foreground">{b.location || b.Nearest_Landmark}</div>
+                            <div className="text-xs">{(b.city || b.City)} • {(b.size || b.Size)}</div>
+                            <div className="text-sm font-medium">{priceForBoard(b).toLocaleString('ar-LY')} د.ل / {durationMonths === 12 ? 'سنة' : `${durationMonths} شهر`}</div>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button size="sm" variant="destructive" className="w-full" onClick={() => setSelected((prev)=>prev.filter((id)=>id!==String(b.ID)))}>إزالة</Button>
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
