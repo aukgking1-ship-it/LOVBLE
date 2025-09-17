@@ -191,10 +191,17 @@ export default function ContractPDFDialog({ open, onOpenChange, contract }: Cont
             .table-area { position: absolute; top: 63.53mm; left: calc(105mm - 92.1235mm); width: 184.247mm; z-index: 20; }
             .btable { width: 100%; border-collapse: collapse; border-spacing: 0; font-size: 8px; font-family: 'Doran', 'Noto Sans Arabic', Arial, sans-serif; table-layout: fixed; border: 0.2mm solid #000; }
             .btable tr { height: 13.818mm; }
-            .btable td { border: 0.2mm solid #000; padding: 0 1mm; vertical-align: middle; background: transparent; color: #000; white-space: normal; word-break: break-word; overflow: hidden; font-family: 'Doran', 'Noto Sans Arabic', Arial, sans-serif; }
+            .btable td { border: 0.2mm solid #000; padding: 0 1mm; vertical-align: middle; text-align: center; background: transparent; color: #000; white-space: normal; word-break: break-word; overflow: hidden; font-family: 'Doran', 'Noto Sans Arabic', Arial, sans-serif; }
             .c-img img { width: 11mm; height: 11mm; object-fit: contain; object-position: center; background: #fff; display: block; margin: 0 auto; border-radius: 1mm; }
             .c-num { text-align: center; font-weight: 700; }
             .btable a { color: #004aad; text-decoration: none; font-family: 'Doran', 'Noto Sans Arabic', Arial, sans-serif; }
+
+            /* Align right for long-text columns; others stay centered */
+            .btable td:nth-child(1), /* الاسم/الرمز */
+            .btable td:nth-child(3), /* البلدية */
+            .btable td:nth-child(4), /* المنطقة */
+            .btable td:nth-child(5)  /* أقرب معلم */
+            { text-align: right; }
 
             @media print {
               html, body { width: 210mm !important; min-height: 297mm !important; height: auto !important; margin: 0 !important; padding: 0 !important; overflow: visible !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -223,7 +230,7 @@ export default function ContractPDFDialog({ open, onOpenChange, contract }: Cont
               <text x="1920" y="1380" font-family="Doran, sans-serif" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">${contractData.customerName}.</text>
               <text x="1970" y="1440" font-family="Doran, sans-serif" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">يمثلها السيد علي ��مار هاتف: ${contractData.phoneNumber}.</text>
               <text x="2250" y="1630" font-family="Doran, sans-serif" font-weight="bold" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">المقدمة:</text>
-              <text x="1290" y="1630" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">نظرًا لرغبة الطرف الثان�� في استئجار مساحات إعلانية من الطرف الأول، تم الاتفاق على الشروط التالية:</text>
+              <text x="1290" y="1630" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">نظرًا لرغبة الطرف الثاني في استئجار مساحات إعلانية من الطرف الأول، تم الاتفاق على الشروط التالية:</text>
               <text x="2240" y="1715" font-family="Doran, sans-serif" font-weight="bold" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">البند الأول:</text>
               <text x="1190" y="1715" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">يلتزم الطرف الثاني بتجهيز التصميم في أسرع وقت وأي تأخير يعتبر مسؤوليته، وتبدي مدة العقد من التاريخ .</text>
               <text x="2095" y="1775" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">المذكور في المادة السادسة</text>
