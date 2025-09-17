@@ -87,7 +87,12 @@ export default function ContractPDFDialog({ open, onOpenChange, contract }: Cont
         return { id, image, municipality, district, landmark, size, faces, price, mapLink };
       };
       const normalized = rows.map(norm);
-      const ROWS_PER_PAGE = 12;
+      const START_X = 105; // mm
+      const START_Y = 63.53; // mm
+      const ROW_W = 184.247; // mm
+      const ROW_H = 13.818; // mm
+      const PAGE_H = 297; // A4 height in mm
+      const ROWS_PER_PAGE = Math.max(1, Math.floor((PAGE_H - START_Y) / ROW_H));
       const tablePagesHtml = normalized.length
         ? normalized
             .reduce((acc: any[][], r, i) => {
@@ -154,18 +159,20 @@ export default function ContractPDFDialog({ open, onOpenChange, contract }: Cont
             .overlay-svg { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; }
             .page { page-break-after: always; }
 
-            /* Table overlay area for bgc2 pages */
-            .table-area { position: absolute; right: 20mm; left: 20mm; top: 80mm; bottom: 32mm; z-index: 20; }
-            .btable { width: 100%; border-collapse: collapse; font-size: 12pt; }
-            .btable td { border: 1px solid #000; padding: 4pt 3pt; vertical-align: middle; }
-            .c-img img { width: 38mm; height: 22mm; object-fit: cover; display: block; margin: 0 auto; }
+            /* Table overlay area for bgc2 pages aligned by mm */
+            .table-area { position: absolute; top: 63.53mm; left: calc(105mm - 92.1235mm); width: 184.247mm; z-index: 20; }
+            .btable { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 8px; table-layout: fixed; }
+            .btable tr { height: 13.818mm; }
+            .btable td { border: none; padding: 0 1mm; vertical-align: middle; background: transparent; color: #000; }
+            .c-img img { width: 11mm; height: 11mm; object-fit: cover; display: block; margin: 0 auto; border-radius: 1mm; }
             .c-num { text-align: center; font-weight: 700; }
             .btable a { color: #004aad; text-decoration: none; }
 
             @media print {
               html, body { width: 210mm !important; height: 297mm !important; margin: 0 !important; padding: 0 !important; overflow: hidden !important; }
               .template-container { width: 210mm !important; height: 297mm !important; position: relative !important; }
-              .template-image, .overlay-svg { width: 210mm !important; height: 297mm !important; }
+              .template-image, .overlay-svg { width: 210mm !important; height: 297mm !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+              .page { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
               .controls { display: none !important; }
               @page { size: A4; margin: 0 !important; padding: 0 !important; }
             }
@@ -201,7 +208,7 @@ export default function ContractPDFDialog({ open, onOpenChange, contract }: Cont
               <text x="2235" y="2240" font-family="Doran, sans-serif" font-weight="bold" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">البند الرابع:</text>
               <text x="1190" y="2240" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">لايجوز للطرف الثاني التنازل عن العقد أو التعامل مع جهات أخرى دون موافقة الطرف الأول، الذي يحتفظ بحق.</text>
               <text x="1530" y="2300" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">استغلال المساحات في المناسبات الوطنية و الانتخابات مع تعويض الطرف الثاني بفترة بديلة.</text>
-              <text x="560" y="2410" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="end" dominant-baseline="middle" style="direction: rtl; text-align: center">قيمة العقد ${contractData.price} دينار ليبي بدون طباعة، دفع عند توقيع العقد والنصف الآخر بعد</text>
+              <text x="560" y="2410" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="end" dominant-baseline="middle" style="direction: rtl; text-align: center">قيمة العق�� ${contractData.price} دينار ليبي بدون طباعة، دفع عند توقيع العقد والنصف الآخر بعد</text>
               <text x="1640" y="2470" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">التركيب، وإذا تأخر السداد عن 30 يومًا يحق للطرف الأول إعادة تأجير المساحات.</text>
               <text x="2210" y="2590" font-family="Doran, sans-serif" font-weight="bold" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">البند السادس:</text>
               <text x="1150" y="2590" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">مدة العقد ${contractData.duration} يومًا تبدأ من ${contractData.startDate} وتنتهي في ${contractData.endDate}، ويجوز تجديده برضى الطرفين قبل</text>
