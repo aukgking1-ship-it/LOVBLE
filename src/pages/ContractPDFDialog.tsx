@@ -189,7 +189,7 @@ export default function ContractPDFDialog({ open, onOpenChange, contract }: Cont
             .btable { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 8px; table-layout: fixed; }
             .btable tr { height: 13.818mm; }
             .btable td { border: none; padding: 0 1mm; vertical-align: middle; background: transparent; color: #000; white-space: normal; word-break: break-word; overflow: hidden; }
-            .c-img img { width: 11mm; height: 11mm; object-fit: cover; display: block; margin: 0 auto; border-radius: 1mm; }
+            .c-img img { width: 11mm; height: 11mm; object-fit: contain; object-position: center; background: #fff; display: block; margin: 0 auto; border-radius: 1mm; }
             .c-num { text-align: center; font-weight: 700; }
             .btable a { color: #004aad; text-decoration: none; }
 
@@ -230,7 +230,7 @@ export default function ContractPDFDialog({ open, onOpenChange, contract }: Cont
               <text x="2225" y="2065" font-family="Doran, sans-serif" font-weight="bold" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">البند الثالث:</text>
               <text x="1240" y="2065" font-family="Doran, sans-serif" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">في حال وقوع ظروف قاهرة تؤثر على إحدى المساحات، يتم نقل الإعلان إلى موقع بديل، ويتولى الطرف الأول</text>
               <text x="1890" y="2125" font-family="Doran, sans-serif" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">الحصول على الموافقات اللازمة من الجهات ذات العلاقة.</text>
-              <text x="2235" y="2240" font-family="Doran, sans-serif" font-weight="bold" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">البند الرابع:</text>
+              <text x="2235" y="2240" font-family="Doran, sans-serif" font-weight="bold" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">ا��بند الرابع:</text>
               <text x="1190" y="2240" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">لايجوز للطرف الثاني ال��نازل عن العقد أو التعامل مع جهات أخرى دون موافقة الطرف الأول، الذي يحتفظ بحق.</text>
               <text x="1530" y="2300" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">استغلال المساحات في المناسبات الوطنية و الانتخابات مع تعويض الطرف الثاني بفترة بديلة.</text>
               <text x="560" y="2410" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="end" dominant-baseline="middle" style="direction: rtl; text-align: center">قيمة العقد ${contractData.price} دينار ليبي بدون طباعة، دفع عند توقيع العقد والنصف الآخر بعد</text>
