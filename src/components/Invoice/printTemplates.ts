@@ -111,7 +111,7 @@ export function buildAlFaresOfferHtml(items: Billboard[], meta: OfferMeta) {
     <div class="box">
       <p>نظراً لرغبة الطرف الثاني في استئجار مساحات إعلانية من الطرف الأول، تم الاتفاق على الشروط التالية.</p>
       <p>قيمة العقد ${formatCurrency(grand)} بدون طباعة؛ تُدفع نصف القيمة عند توقيع العقد والنصف الآخر بعد التركي��، وإذا تأخر السداد عن 30 يوماً يحق للطرف الأول إعادة تأجير المساحات.</p>
-      <p>مدة العقد ${period} تبدأ من ${fmt(new Date(), 'yyyy/MM/dd')} وتنتهي في ${endDateText} ويجوز تجديده برضى الط��فين.</p>
+      <p>مدة العقد ${period} تبد�� من ${fmt(new Date(), 'yyyy/MM/dd')} وتنتهي في ${endDateText} ويجوز تجديده برضى الط��فين.</p>
     </div>
 
     <table>
@@ -273,7 +273,7 @@ export function buildBgc2OfferHtml(items: any[], meta: OfferMeta) {
       }
       return b.GPS_Link || 'https://www.google.com/maps';
     })();
-    const img = (b.Image_URL || b.image) ? `<img src="${b.Image_URL || b.image}" style="height:11mm;width:auto;object-fit:cover;border-radius:2mm"/>` : '';
+    const img = (b.Image_URL || b.image) ? `<img src="${b.Image_URL || b.image}" style="width:11mm;height:11mm;object-fit:cover;border-radius:1mm"/>` : '';
 
     return `<div class="row">
       <div class="c code">${code}</div>
@@ -295,6 +295,7 @@ export function buildBgc2OfferHtml(items: any[], meta: OfferMeta) {
     const rowsHtml = slice.map(buildRow).join('');
     const page = `
       <div class="page">
+        <img class="bg" src="/bgc2.jpg" alt="" />
         <div class="tableArea">
           ${rowsHtml}
         </div>
@@ -307,15 +308,16 @@ export function buildBgc2OfferHtml(items: any[], meta: OfferMeta) {
   <style>
     @page { size: A4; margin: 0; }
     html, body { width: 210mm; height: 297mm; margin: 0; padding: 0; }
-    body { background: #000 url('/bgc2.jpg') no-repeat center top; background-size: cover; font-family: 'Cairo','Tajawal', system-ui, sans-serif; }
-    .page { position: relative; width: 210mm; height: 297mm; page-break-after: always; }
-    .tableArea { position: absolute; top: ${startY}mm; left: calc(${startX}mm - ${rowW/2}mm); width: ${rowW}mm; }
-    .row { display: grid; grid-template-columns: 10% 10% 10% 10% 20% 8% 8% 10% 7% 7%; align-items: center; width: ${rowW}mm; height: ${rowH}mm; box-sizing: border-box; padding: 0 1.5mm; background: transparent; margin: 0; }
-            .c { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 3.2mm; color: #111; padding-inline: 1mm; }
+    body { background: #fff; font-family: 'Cairo','Tajawal', system-ui, sans-serif; font-size: 8px; }
+    .page { position: relative; width: 210mm; height: 297mm; page-break-after: always; background: transparent; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .tableArea { position: absolute; top: ${startY}mm; left: calc(${startX}mm - ${rowW/2}mm); width: ${rowW}mm; z-index: 1; }
+    .row { display: grid; grid-template-columns: 10% 10% 10% 10% 20% 8% 8% 10% 7% 7%; align-items: center; width: ${rowW}mm; height: ${rowH}mm; box-sizing: border-box; padding: 0 1mm; background: transparent; margin: 0; }
+            .c { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 8px; color: #111; padding-inline: 1mm; }
     .price, .duration, .faces, .size { text-align: center; }
     a { color: #0a58ca; text-decoration: none; }
     a:hover { text-decoration: underline; }
-    @media print { .page { box-shadow: none; } }
+    .bg { position:absolute; top:0; left:0; width:210mm; height:297mm; object-fit:cover; z-index:0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    @media print { .page { box-shadow: none; -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
   </style></head><body>
     ${pages.join('')}
     <script>window.onload=()=>{try{window.print()}catch(e){setTimeout(()=>window.print(),300)}};</script>
