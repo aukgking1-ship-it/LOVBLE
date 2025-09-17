@@ -92,7 +92,8 @@ export default function ContractPDFDialog({ open, onOpenChange, contract }: Cont
           if (lat != null && lng != null) coords = `${lat},${lng}`;
         }
         const mapLink = coords ? `https://www.google.com/maps?q=${encodeURIComponent(coords)}` : (b.GPS_Link || '');
-        return { id, image, municipality, district, landmark, size, faces, price, mapLink };
+        const name = String(b.Billboard_Name ?? b.name ?? b.code ?? id);
+        return { id, name, image, municipality, district, landmark, size, faces, price, mapLink };
       };
       const normalized = srcRows.map(norm);
       const START_X = 105; // mm
@@ -114,7 +115,7 @@ export default function ContractPDFDialog({ open, onOpenChange, contract }: Cont
                 <div class="table-area">
                   <table class="btable" dir="rtl">
                     <colgroup>
-                      <col style="width:8%" />
+                      <col style="width:18%" />
                       <col style="width:14%" />
                       <col style="width:12%" />
                       <col style="width:12%" />
@@ -129,7 +130,7 @@ export default function ContractPDFDialog({ open, onOpenChange, contract }: Cont
                         .map(
                           (r) => `
                           <tr>
-                            <td class="c-num">${r.id}</td>
+                            <td class="c-name">${r.name || r.id}</td>
                             <td class="c-img">${r.image ? `<img src="${r.image}" alt="صورة اللوحة" />` : ''}</td>
                             <td>${r.municipality}</td>
                             <td>${r.district}</td>
@@ -171,7 +172,7 @@ export default function ContractPDFDialog({ open, onOpenChange, contract }: Cont
             .table-area { position: absolute; top: 63.53mm; left: calc(105mm - 92.1235mm); width: 184.247mm; z-index: 20; }
             .btable { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 8px; table-layout: fixed; }
             .btable tr { height: 13.818mm; }
-            .btable td { border: none; padding: 0 1mm; vertical-align: middle; background: transparent; color: #000; }
+            .btable td { border: none; padding: 0 1mm; vertical-align: middle; background: transparent; color: #000; white-space: normal; word-break: break-word; overflow: hidden; }
             .c-img img { width: 11mm; height: 11mm; object-fit: cover; display: block; margin: 0 auto; border-radius: 1mm; }
             .c-num { text-align: center; font-weight: 700; }
             .btable a { color: #004aad; text-decoration: none; }
@@ -275,7 +276,7 @@ export default function ContractPDFDialog({ open, onOpenChange, contract }: Cont
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
               <p className="text-lg font-semibold">جاري تحضير العقد للطباعة...</p>
-              <p className="text-sm text-gray-600 mt-2">سيتم فتح نافذة الطباعة بدون فراغات</p>
+              <p className="text-sm text-gray-600 mt-2">سيتم فتح نافذة الطباعة بدو�� فراغات</p>
             </div>
           ) : (
             <>
