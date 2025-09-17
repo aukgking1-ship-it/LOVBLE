@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import * as UIDialog from '@/components/ui/dialog';
 import { toast } from 'sonner';
+import { getPriceFor as getStaticPriceFor } from '@/data/pricing';
 
 interface ContractPDFDialogProps {
   open: boolean;
@@ -84,7 +85,22 @@ export default function ContractPDFDialog({ open, onOpenChange, contract }: Cont
         const size = String(b.Size ?? b.size ?? '');
         const faces = String(b.Faces ?? b.faces ?? b.Number_of_Faces ?? b.Faces_Count ?? b.faces_count ?? '1');
         const priceVal = b.Price ?? b.price ?? b.rent ?? b.Rent_Price ?? b.rent_cost ?? b['Total Rent'];
-        const price = typeof priceVal === 'number' ? `${priceVal.toLocaleString('ar-LY')} د.ل` : (priceVal || '');
+        let price = '';
+        if (priceVal !== undefined && priceVal !== null && String(priceVal) !== '') {
+          const num = typeof priceVal === 'number' ? priceVal : Number(priceVal);
+          if (!isNaN(num)) {
+            price = `${num.toLocaleString('ar-LY')} د.ل`;
+          } else {
+            price = String(priceVal);
+          }
+        }
+        if (!price) {
+          const days = Number(contractDetails.duration) || 30;
+          const monthsGuess = Math.max(1, Math.round(days / 30));
+          const lvl = b.Level ?? b.level;
+          const p = getStaticPriceFor(String(size), String(lvl || 'A'), String((contract as any)?.customer_category || 'عادي'), monthsGuess);
+          if (p !== null) price = `${p.toLocaleString('ar-LY')} د.ل`;
+        }
         let coords: string = String(b.GPS_Coordinates ?? b.coords ?? b.coordinates ?? b.GPS ?? '');
         if (!coords || coords === 'undefined' || coords === 'null') {
           const lat = b.Latitude ?? b.lat ?? b.latitude;
@@ -223,7 +239,7 @@ export default function ContractPDFDialog({ open, onOpenChange, contract }: Cont
               <text x="1150" y="2590" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">مدة العقد ${contractData.duration} يومًا تبدأ من ${contractData.startDate} وتنتهي في ${contractData.endDate}، ويجوز تجديده برضى الطرفين قبل</text>
               <text x="1800" y="2650" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">انتهائه بمدة لا تقل عن 15 يومًا وفق شروط يتم الاتفاق عليها .</text>
               <text x="2220" y="2760" font-family="Doran, sans-serif" font-weight="bold" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">البند السابع:</text>
-              <text x="1150" y="2760" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">في حال حدوث خلاف بين الطرفين يتم حلّه وديًا، وإذا تعذر ذلك يُعين طرفان محاميان لتسوية النزاع بقرار نهائي</text>
+              <text x="1150" y="2760" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">في حال حدوث خلاف ب��ن الطرفين يتم حلّه وديًا، وإذا تعذر ذلك يُعين طرفان محاميان لتسوية النزاع بقرار نهائي</text>
               <text x="2200" y="2820" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">وملزم للطرفين.</text>
             </svg>
             <div class="controls"><button onclick="window.print()">طباعة</button><button onclick="window.close()">إغلاق</button></div>
@@ -251,7 +267,7 @@ export default function ContractPDFDialog({ open, onOpenChange, contract }: Cont
         toast.success('تم فتح العقد للطباعة مع جدول اللوحات!');
         onOpenChange(false);
       } else {
-        throw new Error('فشل في فتح نافذة الطباعة. يرجى السماح بالنوافذ المنبثقة.');
+        throw new Error('فشل في فتح نافذة الطباعة. يرجى الس��اح بالنوافذ المنبثقة.');
       }
 
     } catch (error) {
@@ -276,12 +292,12 @@ export default function ContractPDFDialog({ open, onOpenChange, contract }: Cont
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
               <p className="text-lg font-semibold">جاري تحضير العقد للطباعة...</p>
-              <p className="text-sm text-gray-600 mt-2">سيتم فتح نافذة الطباعة بدو�� فراغات</p>
+              <p className="text-sm text-gray-600 mt-2">سيتم فتح نافذة الطباعة بدون فراغات</p>
             </div>
           ) : (
             <>
               <div className="bg-muted p-4 rounded-lg">
-                <h3 className="font-semibold mb-2">تم إنشاء العقد بالبيانات ا��تالية:</h3>
+                <h3 className="font-semibold mb-2">تم إنشاء العقد بالبيانات ا��تا��ية:</h3>
                 <div className="text-sm space-y-1">
                   <p><strong>رقم العقد:</strong> {contract?.id || contract?.Contract_Number || 'غير محدد'}</p>
                   <p><strong>العميل:</strong> {contract?.customer_name || contract?.['Customer Name'] || 'غير محدد'}</p>
