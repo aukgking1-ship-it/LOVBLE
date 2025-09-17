@@ -131,15 +131,15 @@ export default function ContractPDFDialog({ open, onOpenChange, contract }: Cont
                 <div class="table-area">
                   <table class="btable" dir="rtl">
                     <colgroup>
-                      <col style="width:18%" />
-                      <col style="width:14%" />
+                      <col style="width:16%" />
                       <col style="width:12%" />
-                      <col style="width:12%" />
-                      <col style="width:18%" />
                       <col style="width:10%" />
-                      <col style="width:8%" />
                       <col style="width:10%" />
+                      <col style="width:26%" />
                       <col style="width:8%" />
+                      <col style="width:6%" />
+                      <col style="width:8%" />
+                      <col style="width:4%" />
                     </colgroup>
                     <tbody>
                       ${pageRows
@@ -193,6 +193,7 @@ export default function ContractPDFDialog({ open, onOpenChange, contract }: Cont
             .btable tr { height: 13.818mm; }
             .btable td { border: 0.2mm solid #000; padding: 0 1mm; vertical-align: middle; text-align: center; background: transparent; color: #000; white-space: normal; word-break: break-word; overflow: hidden; font-family: 'Doran', 'Noto Sans Arabic', Arial, sans-serif; }
             .c-img img { width: 11mm; height: 11mm; object-fit: contain; object-position: center; background: #fff; display: block; margin: 0 auto; border-radius: 1mm; }
+            .btable td.c-img { display: flex; align-items: center; justify-content: center; }
             .c-num { text-align: center; font-weight: 700; }
             .btable a { color: #004aad; text-decoration: none; font-family: 'Doran', 'Noto Sans Arabic', Arial, sans-serif; }
 
@@ -239,10 +240,10 @@ export default function ContractPDFDialog({ open, onOpenChange, contract }: Cont
               <text x="1170" y="1890" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">يلتزم الطرف الأول بتعبئة وتركيب التصاميم بدقة على المساحات المتفق عليها وفق الجدول المرفق، ويتحمل .</text>
               <text x="1850" y="1950" font-family="Doran, sans-serif" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">الأخير تكاليف التغيير الناتجة عن الأحوال الجوية أو الحوادث.</text>
               <text x="2225" y="2065" font-family="Doran, sans-serif" font-weight="bold" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">البند الثالث:</text>
-              <text x="1240" y="2065" font-family="Doran, sans-serif" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">في حال وقوع ظروف قاهرة تؤثر على إحدى المساحات، يتم نقل الإعلان إلى موقع بديل، ويتولى الطرف الأول</text>
+              <text x="1240" y="2065" font-family="Doran, sans-serif" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">في حال وقوع ظروف ق��هرة تؤثر على إحدى المساحات، يتم نقل الإعلان إلى موقع بديل، ويتولى الطرف الأول</text>
               <text x="1890" y="2125" font-family="Doran, sans-serif" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">الحصول على الموافقات اللازمة من الجهات ذات العلاقة.</text>
               <text x="2235" y="2240" font-family="Doran, sans-serif" font-weight="bold" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">البند الرابع:</text>
-              <text x="1190" y="2240" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">لايجوز للطرف الثاني ال��نازل عن العقد أو التعامل مع جهات أخرى دون موافقة الطرف الأول، ا��ذي يحتفظ بحق.</text>
+              <text x="1190" y="2240" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">لايجوز للطرف الثاني ال��نازل عن العقد أو التعامل مع جهات أخرى دون موافقة الطرف الأول، الذي يحتفظ بحق.</text>
               <text x="1530" y="2300" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">استغلال المساحات في المناسبات الوطنية و الانتخابات مع تعويض الطرف الثاني بفترة بديلة.</text>
               <text x="560" y="2410" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="end" dominant-baseline="middle" style="direction: rtl; text-align: center">قيمة العقد ${contractData.price} دينار ليبي بدون طباعة، دفع عند توقيع العقد والنصف الآخر بعد</text>
               <text x="1640" y="2470" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">التركيب، وإذا تأخر السداد عن 30 يومًا يحق للطرف الأول إعادة تأجير المساحات.</text>
@@ -250,7 +251,7 @@ export default function ContractPDFDialog({ open, onOpenChange, contract }: Cont
               <text x="1150" y="2590" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">مدة العقد ${contractData.duration} يومًا تبدأ من ${contractData.startDate} وتنتهي في ${contractData.endDate}، ويجوز تجديده برضى الطرفين قبل</text>
               <text x="1800" y="2650" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">انتهائه بمدة لا تقل عن 15 يومًا وفق شروط يتم الاتفاق عليها .</text>
               <text x="2220" y="2760" font-family="Doran, sans-serif" font-weight="bold" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">البند السابع:</text>
-              <text x="1150" y="2760" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">في حال حدوث خلاف ب��ن الطرفين يتم حلّه وديًا، وإذا تعذر ذلك يُعين طرفان محا��يان لتسوية النزاع بقرار نهائي</text>
+              <text x="1150" y="2760" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">في حال حدوث خلاف ب��ن الطرفين يتم حلّه وديًا، وإذا تعذر ذلك يُعين طرفان محاميان لتسوية النزاع بقرار نهائي</text>
               <text x="2200" y="2820" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">وملزم للطرفين.</text>
             </svg>
             <div class="controls"><button onclick="window.print()">طباعة</button><button onclick="window.close()">إغلاق</button></div>
