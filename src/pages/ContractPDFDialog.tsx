@@ -177,6 +177,9 @@ export default function ContractPDFDialog({ open, onOpenChange, contract }: Cont
           <style>
             @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700&display=swap');
 
+            @font-face { font-family: 'Doran'; src: url('/Doran-Regular.otf') format('opentype'); font-weight: 400; font-style: normal; font-display: swap; }
+            @font-face { font-family: 'Doran'; src: url('/Doran-Bold.otf') format('opentype'); font-weight: 700; font-style: normal; font-display: swap; }
+
             * { margin: 0 !important; padding: 0 !important; box-sizing: border-box; }
             html, body { width: 100% !important; height: 100% !important; overflow: hidden; font-family: 'Noto Sans Arabic', 'Doran', Arial, sans-serif; direction: rtl; text-align: right; background: white; color: #000; }
             .template-container { position: relative; width: 100vw; height: 100vh; overflow: hidden; display: block; }
@@ -186,12 +189,12 @@ export default function ContractPDFDialog({ open, onOpenChange, contract }: Cont
 
             /* Table overlay area for bgc2 pages aligned by mm */
             .table-area { position: absolute; top: 63.53mm; left: calc(105mm - 92.1235mm); width: 184.247mm; z-index: 20; }
-            .btable { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 8px; table-layout: fixed; }
+            .btable { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 8px; font-family: 'Doran', 'Noto Sans Arabic', Arial, sans-serif; table-layout: fixed; }
             .btable tr { height: 13.818mm; }
-            .btable td { border: none; padding: 0 1mm; vertical-align: middle; background: transparent; color: #000; white-space: normal; word-break: break-word; overflow: hidden; }
+            .btable td { border: none; padding: 0 1mm; vertical-align: middle; background: transparent; color: #000; white-space: normal; word-break: break-word; overflow: hidden; font-family: 'Doran', 'Noto Sans Arabic', Arial, sans-serif; }
             .c-img img { width: 11mm; height: 11mm; object-fit: contain; object-position: center; background: #fff; display: block; margin: 0 auto; border-radius: 1mm; }
             .c-num { text-align: center; font-weight: 700; }
-            .btable a { color: #004aad; text-decoration: none; }
+            .btable a { color: #004aad; text-decoration: none; font-family: 'Doran', 'Noto Sans Arabic', Arial, sans-serif; }
 
             @media print {
               html, body { width: 210mm !important; min-height: 297mm !important; height: auto !important; margin: 0 !important; padding: 0 !important; overflow: visible !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -225,12 +228,12 @@ export default function ContractPDFDialog({ open, onOpenChange, contract }: Cont
               <text x="1190" y="1715" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">يلتزم الطرف الثاني بتجهيز التصميم في أسرع وقت وأي تأخير يعتبر مسؤوليته، وتبدي مدة العقد من التاريخ .</text>
               <text x="2095" y="1775" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">المذكور في المادة السادسة</text>
               <text x="2230" y="1890" font-family="Doran, sans-serif" font-weight="bold" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">البند الثاني:</text>
-              <text x="1170" y="1890" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">يلتزم الطرف الأول بتعبئة وتركيب التصاميم بدقة على المساحات المتفق عليها وفق الجدول المرفق، ويتحمل .</text>
+              <text x="1170" y="1890" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">يلتزم الطرف الأو�� بتعبئة وتركيب التصاميم بدقة على المساحات المتفق عليها وفق الجدول المرفق، ويتحمل .</text>
               <text x="1850" y="1950" font-family="Doran, sans-serif" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">الأخير تكاليف التغيير الناتجة عن الأحوال الجوية أو الحوادث.</text>
               <text x="2225" y="2065" font-family="Doran, sans-serif" font-weight="bold" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">البند الثالث:</text>
               <text x="1240" y="2065" font-family="Doran, sans-serif" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">في حال وقوع ظروف قاهرة تؤثر على إحدى المساحات، يتم نقل الإعلان إلى موقع بديل، ويتولى الطرف الأول</text>
-              <text x="1890" y="2125" font-family="Doran, sans-serif" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">الحصول على الموافقات اللازمة من الجهات ذات العلاقة.</text>
-              <text x="2235" y="2240" font-family="Doran, sans-serif" font-weight="bold" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">ا��بند الرابع:</text>
+              <text x="1890" y="2125" font-family="Doran, sans-serif" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">الحصول ��لى الموافقات اللازمة من الجهات ذات العلاقة.</text>
+              <text x="2235" y="2240" font-family="Doran, sans-serif" font-weight="bold" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">البند الرابع:</text>
               <text x="1190" y="2240" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">لايجوز للطرف الثاني ال��نازل عن العقد أو التعامل مع جهات أخرى دون موافقة الطرف الأول، الذي يحتفظ بحق.</text>
               <text x="1530" y="2300" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">استغلال المساحات في المناسبات الوطنية و الانتخابات مع تعويض الطرف الثاني بفترة بديلة.</text>
               <text x="560" y="2410" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="end" dominant-baseline="middle" style="direction: rtl; text-align: center">قيمة العقد ${contractData.price} دينار ليبي بدون طباعة، دفع عند توقيع العقد والنصف الآخر بعد</text>
