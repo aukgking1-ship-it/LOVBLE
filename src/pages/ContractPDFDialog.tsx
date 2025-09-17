@@ -177,7 +177,7 @@ export default function ContractPDFDialog({ open, onOpenChange, contract }: Cont
             .btable a { color: #004aad; text-decoration: none; }
 
             @media print {
-              html, body { width: 210mm !important; height: 297mm !important; margin: 0 !important; padding: 0 !important; overflow: hidden !important; }
+              html, body { width: 210mm !important; min-height: 297mm !important; height: auto !important; margin: 0 !important; padding: 0 !important; overflow: visible !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
               .template-container { width: 210mm !important; height: 297mm !important; position: relative !important; }
               .template-image, .overlay-svg { width: 210mm !important; height: 297mm !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
               .page { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -193,7 +193,7 @@ export default function ContractPDFDialog({ open, onOpenChange, contract }: Cont
           <div class="template-container page">
             <img src="/contract-template.png" alt="عقد إيجار لوحات إعلانية" class="template-image" />
             <svg class="overlay-svg" viewBox="0 0 2480 3508" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-              <text x="1750" y="700" font-family="Doran, sans-serif" font-weight="bold" font-size="62" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">إيجار لمواقع إعلانية رقم: ${contractData.contractNumber} سنة ${contractData.year}</text>
+              <text x="1750" y="700" font-family="Doran, sans-serif" font-weight="bold" font-size="62" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">إيجار ��مواقع إعلانية رقم: ${contractData.contractNumber} سنة ${contractData.year}</text>
               <text x="440" y="700" font-family="Doran, sans-serif" font-weight="bold" font-size="62" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">التاريخ: ${contractData.startDate}</text>
               <text x="2050" y="915" font-family="Doran, sans-serif" font-weight="bold" font-size="62" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">نوع الإعلان: ${contractData.adType}.</text>
               <text x="2220" y="1140" font-family="Doran, sans-serif" font-weight="bold" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">الطرف الأول:</text>
