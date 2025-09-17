@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import * as UIDialog from '@/components/ui/dialog';
 import { toast } from 'sonner';
+import { getPriceFor as getStaticPriceFor } from '@/data/pricing';
 
 interface ContractPDFDialogProps {
   open: boolean;
@@ -65,29 +66,58 @@ export default function ContractPDFDialog({ open, onOpenChange, contract }: Cont
         phoneNumber: '0912612255'
       };
 
-      // Normalize contract billboards for table pages
-      const rows: any[] = Array.isArray(contract?.billboards) ? contract.billboards : [];
+      // Normalize billboards for page-2; fallback to saved JSON if DB rows missing
+      const dbRows: any[] = Array.isArray(contract?.billboards) ? contract.billboards : [];
+      let srcRows: any[] = dbRows;
+      if (!srcRows.length) {
+        try {
+          const saved = (contract as any)?.saved_billboards_data ?? (contract as any)?.billboards_data ?? '[]';
+          const parsed = typeof saved === 'string' ? JSON.parse(saved) : saved;
+          if (Array.isArray(parsed)) srcRows = parsed;
+        } catch {}
+      }
       const norm = (b: any) => {
-        const id = String(b.ID ?? b.id ?? '');
-        const image = String(b.image ?? b.Image ?? b.billboard_image ?? b.Image_URL ?? b['@IMAGE'] ?? b.image_url ?? b.imageUrl ?? '');
-        const municipality = String(b.Municipality ?? b.municipality ?? '');
+        const id = String(b.ID ?? b.id ?? b.code ?? '');
+        const image = String(b.image ?? b.Image ?? b.billboard_image ?? b.Image_URL ?? b['@IMAGE'] ?? b.image_url ?? b.imageUrl ?? b.img ?? '');
+        const municipality = String(b.Municipality ?? b.municipality ?? b.city ?? '');
         const district = String(b.District ?? b.district ?? '');
-        const landmark = String(b.Nearest_Landmark ?? b.nearest_landmark ?? b.location ?? '');
+        const landmark = String(b.Nearest_Landmark ?? b.nearest_landmark ?? b.location ?? b.landmark ?? '');
         const size = String(b.Size ?? b.size ?? '');
-        const faces = String(b.Faces ?? b.faces ?? b.Number_of_Faces ?? '');
-        const priceVal = b.Price ?? b.rent ?? b.Rent_Price ?? b.rent_cost ?? b['Total Rent'];
-        const price = typeof priceVal === 'number' ? `${priceVal.toLocaleString('ar-LY')} د.ل` : (priceVal || '');
+        const faces = String(b.Faces ?? b.faces ?? b.Number_of_Faces ?? b.Faces_Count ?? b.faces_count ?? '1');
+        const priceVal = b.Price ?? b.price ?? b.rent ?? b.Rent_Price ?? b.rent_cost ?? b['Total Rent'];
+        let price = '';
+        if (priceVal !== undefined && priceVal !== null && String(priceVal) !== '') {
+          const num = typeof priceVal === 'number' ? priceVal : Number(priceVal);
+          if (!isNaN(num)) {
+            price = `${num.toLocaleString('ar-LY')} د.ل`;
+          } else {
+            price = String(priceVal);
+          }
+        }
+        if (!price) {
+          const days = Number(contractDetails.duration) || 30;
+          const monthsGuess = Math.max(1, Math.round(days / 30));
+          const lvl = b.Level ?? b.level;
+          const p = getStaticPriceFor(String(size), String(lvl || 'A'), String((contract as any)?.customer_category || 'عادي'), monthsGuess);
+          if (p !== null) price = `${p.toLocaleString('ar-LY')} د.ل`;
+        }
         let coords: string = String(b.GPS_Coordinates ?? b.coords ?? b.coordinates ?? b.GPS ?? '');
         if (!coords || coords === 'undefined' || coords === 'null') {
           const lat = b.Latitude ?? b.lat ?? b.latitude;
           const lng = b.Longitude ?? b.lng ?? b.longitude;
           if (lat != null && lng != null) coords = `${lat},${lng}`;
         }
-        const mapLink = coords ? `https://www.google.com/maps?q=${encodeURIComponent(coords)}` : '';
-        return { id, image, municipality, district, landmark, size, faces, price, mapLink };
+        const mapLink = coords ? `https://www.google.com/maps?q=${encodeURIComponent(coords)}` : (b.GPS_Link || '');
+        const name = String(b.Billboard_Name ?? b.name ?? b.code ?? id);
+        return { id, name, image, municipality, district, landmark, size, faces, price, mapLink };
       };
-      const normalized = rows.map(norm);
-      const ROWS_PER_PAGE = 12;
+      const normalized = srcRows.map(norm);
+      const START_X = 105; // mm
+      const START_Y = 63.53; // mm
+      const ROW_W = 184.247; // mm
+      const ROW_H = 13.818; // mm
+      const PAGE_H = 297; // A4 height in mm
+      const ROWS_PER_PAGE = Math.max(1, Math.floor((PAGE_H - START_Y) / ROW_H));
       const tablePagesHtml = normalized.length
         ? normalized
             .reduce((acc: any[][], r, i) => {
@@ -101,22 +131,22 @@ export default function ContractPDFDialog({ open, onOpenChange, contract }: Cont
                 <div class="table-area">
                   <table class="btable" dir="rtl">
                     <colgroup>
-                      <col style="width:8%" />
-                      <col style="width:14%" />
+                      <col style="width:16%" />
                       <col style="width:12%" />
-                      <col style="width:12%" />
-                      <col style="width:18%" />
                       <col style="width:10%" />
-                      <col style="width:8%" />
                       <col style="width:10%" />
+                      <col style="width:26%" />
                       <col style="width:8%" />
+                      <col style="width:6%" />
+                      <col style="width:8%" />
+                      <col style="width:4%" />
                     </colgroup>
                     <tbody>
                       ${pageRows
                         .map(
                           (r) => `
                           <tr>
-                            <td class="c-num">${r.id}</td>
+                            <td class="c-name">${r.name || r.id}</td>
                             <td class="c-img">${r.image ? `<img src="${r.image}" alt="صورة اللوحة" />` : ''}</td>
                             <td>${r.municipality}</td>
                             <td>${r.district}</td>
@@ -147,6 +177,9 @@ export default function ContractPDFDialog({ open, onOpenChange, contract }: Cont
           <style>
             @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700&display=swap');
 
+            @font-face { font-family: 'Doran'; src: url('/Doran-Regular.otf') format('opentype'); font-weight: 400; font-style: normal; font-display: swap; }
+            @font-face { font-family: 'Doran'; src: url('/Doran-Bold.otf') format('opentype'); font-weight: 700; font-style: normal; font-display: swap; }
+
             * { margin: 0 !important; padding: 0 !important; box-sizing: border-box; }
             html, body { width: 100% !important; height: 100% !important; overflow: hidden; font-family: 'Noto Sans Arabic', 'Doran', Arial, sans-serif; direction: rtl; text-align: right; background: white; color: #000; }
             .template-container { position: relative; width: 100vw; height: 100vh; overflow: hidden; display: block; }
@@ -154,18 +187,29 @@ export default function ContractPDFDialog({ open, onOpenChange, contract }: Cont
             .overlay-svg { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; }
             .page { page-break-after: always; }
 
-            /* Table overlay area for bgc2 pages */
-            .table-area { position: absolute; right: 20mm; left: 20mm; top: 80mm; bottom: 32mm; z-index: 20; }
-            .btable { width: 100%; border-collapse: collapse; font-size: 12pt; }
-            .btable td { border: 1px solid #000; padding: 4pt 3pt; vertical-align: middle; }
-            .c-img img { width: 38mm; height: 22mm; object-fit: cover; display: block; margin: 0 auto; }
+            /* Table overlay area for bgc2 pages aligned by mm */
+            .table-area { position: absolute; top: 63.53mm; left: calc(105mm - 92.1235mm); width: 184.247mm; z-index: 20; }
+            .btable { width: 100%; border-collapse: collapse; border-spacing: 0; font-size: 8px; font-family: 'Doran', 'Noto Sans Arabic', Arial, sans-serif; table-layout: fixed; border: 0.2mm solid #000; }
+            .btable tr { height: 13.818mm; }
+            .btable td { border: 0.2mm solid #000; padding: 0 1mm; vertical-align: middle; text-align: center; background: transparent; color: #000; white-space: normal; word-break: break-word; overflow: hidden; font-family: 'Doran', 'Noto Sans Arabic', Arial, sans-serif; }
+            .c-img img { width: 11mm; height: 11mm; object-fit: contain; object-position: center; background: #fff; display: block; margin: 0 auto; border-radius: 1mm; }
+            .btable td.c-img { display: flex; align-items: center; justify-content: center; }
             .c-num { text-align: center; font-weight: 700; }
-            .btable a { color: #004aad; text-decoration: none; }
+            .btable a { color: #004aad; text-decoration: none; font-family: 'Doran', 'Noto Sans Arabic', Arial, sans-serif; }
+
+            /* توسيط كل الأعمدة في الجدول */
+            .btable td:nth-child(1),
+            .btable td:nth-child(3),
+            .btable td:nth-child(4),
+            .btable td:nth-child(5) {
+              text-align: center;
+            }
 
             @media print {
-              html, body { width: 210mm !important; height: 297mm !important; margin: 0 !important; padding: 0 !important; overflow: hidden !important; }
+              html, body { width: 210mm !important; min-height: 297mm !important; height: auto !important; margin: 0 !important; padding: 0 !important; overflow: visible !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
               .template-container { width: 210mm !important; height: 297mm !important; position: relative !important; }
-              .template-image, .overlay-svg { width: 210mm !important; height: 297mm !important; }
+              .template-image, .overlay-svg { width: 210mm !important; height: 297mm !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+              .page { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
               .controls { display: none !important; }
               @page { size: A4; margin: 0 !important; padding: 0 !important; }
             }
@@ -178,7 +222,7 @@ export default function ContractPDFDialog({ open, onOpenChange, contract }: Cont
           <div class="template-container page">
             <img src="/contract-template.png" alt="عقد إيجار لوحات إعلانية" class="template-image" />
             <svg class="overlay-svg" viewBox="0 0 2480 3508" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-              <text x="1750" y="700" font-family="Doran, sans-serif" font-weight="bold" font-size="62" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">إيجار لمواقع إعلانية رقم: ${contractData.contractNumber} سنة ${contractData.year}</text>
+              <text x="1750" y="700" font-family="Doran, sans-serif" font-weight="bold" font-size="62" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">إيجار ��مواقع إعلانية رقم: ${contractData.contractNumber} سنة ${contractData.year}</text>
               <text x="440" y="700" font-family="Doran, sans-serif" font-weight="bold" font-size="62" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">التاريخ: ${contractData.startDate}</text>
               <text x="2050" y="915" font-family="Doran, sans-serif" font-weight="bold" font-size="62" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">نوع الإعلان: ${contractData.adType}.</text>
               <text x="2220" y="1140" font-family="Doran, sans-serif" font-weight="bold" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">الطرف الأول:</text>
@@ -186,7 +230,7 @@ export default function ContractPDFDialog({ open, onOpenChange, contract }: Cont
               <text x="1960" y="1200" font-family="Doran, sans-serif" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">يمثلها السيد جمال أحمد زحيل (المدير العام).</text>
               <text x="2210" y="1380" font-family="Doran, sans-serif" font-weight="bold" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">الطرف الثاني:</text>
               <text x="1920" y="1380" font-family="Doran, sans-serif" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">${contractData.customerName}.</text>
-              <text x="1970" y="1440" font-family="Doran, sans-serif" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">يمثلها السيد علي عمار هاتف: ${contractData.phoneNumber}.</text>
+              <text x="1970" y="1440" font-family="Doran, sans-serif" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">يمثلها السيد علي ��مار هاتف: ${contractData.phoneNumber}.</text>
               <text x="2250" y="1630" font-family="Doran, sans-serif" font-weight="bold" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">المقدمة:</text>
               <text x="1290" y="1630" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">نظرًا لرغبة الطرف الثاني في استئجار مساحات إعلانية من الطرف الأول، تم الاتفاق على الشروط التالية:</text>
               <text x="2240" y="1715" font-family="Doran, sans-serif" font-weight="bold" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">البند الأول:</text>
@@ -196,10 +240,10 @@ export default function ContractPDFDialog({ open, onOpenChange, contract }: Cont
               <text x="1170" y="1890" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">يلتزم الطرف الأول بتعبئة وتركيب التصاميم بدقة على المساحات المتفق عليها وفق الجدول المرفق، ويتحمل .</text>
               <text x="1850" y="1950" font-family="Doran, sans-serif" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">الأخير تكاليف التغيير الناتجة عن الأحوال الجوية أو الحوادث.</text>
               <text x="2225" y="2065" font-family="Doran, sans-serif" font-weight="bold" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">البند الثالث:</text>
-              <text x="1240" y="2065" font-family="Doran, sans-serif" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">في حال وقوع ظروف قاهرة تؤثر على إحدى المساحات، يتم نقل الإعلان إلى موقع بديل، ويتولى الطرف الأول</text>
+              <text x="1240" y="2065" font-family="Doran, sans-serif" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">في حال وقوع ظروف ق��هرة تؤثر على إحدى المساحات، يتم نقل الإعلان إلى موقع بديل، ويتولى الطرف الأول</text>
               <text x="1890" y="2125" font-family="Doran, sans-serif" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">الحصول على الموافقات اللازمة من الجهات ذات العلاقة.</text>
               <text x="2235" y="2240" font-family="Doran, sans-serif" font-weight="bold" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">البند الرابع:</text>
-              <text x="1190" y="2240" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">لايجوز للطرف الثاني التنازل عن العقد أو التعامل مع جهات أخرى دون موافقة الطرف الأول، الذي يحتفظ بحق.</text>
+              <text x="1190" y="2240" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">لايجوز للطرف الثاني ال��نازل عن العقد أو التعامل مع جهات أخرى دون موافقة الطرف الأول، الذي يحتفظ بحق.</text>
               <text x="1530" y="2300" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">استغلال المساحات في المناسبات الوطنية و الانتخابات مع تعويض الطرف الثاني بفترة بديلة.</text>
               <text x="560" y="2410" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="end" dominant-baseline="middle" style="direction: rtl; text-align: center">قيمة العقد ${contractData.price} دينار ليبي بدون طباعة، دفع عند توقيع العقد والنصف الآخر بعد</text>
               <text x="1640" y="2470" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">التركيب، وإذا تأخر السداد عن 30 يومًا يحق للطرف الأول إعادة تأجير المساحات.</text>
@@ -207,7 +251,7 @@ export default function ContractPDFDialog({ open, onOpenChange, contract }: Cont
               <text x="1150" y="2590" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">مدة العقد ${contractData.duration} يومًا تبدأ من ${contractData.startDate} وتنتهي في ${contractData.endDate}، ويجوز تجديده برضى الطرفين قبل</text>
               <text x="1800" y="2650" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">انتهائه بمدة لا تقل عن 15 يومًا وفق شروط يتم الاتفاق عليها .</text>
               <text x="2220" y="2760" font-family="Doran, sans-serif" font-weight="bold" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">البند السابع:</text>
-              <text x="1150" y="2760" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">في حال حدوث خلاف بين الطرفين يتم حلّه وديًا، وإذا تعذر ذلك يُعين طرفان محاميان لتسوية النزاع بقرار نهائي</text>
+              <text x="1150" y="2760" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">في حال حدوث خلاف ب��ن الطرفين يتم حلّه وديًا، وإذا تعذر ذلك يُعين طرفان محاميان لتسوية النزاع بقرار نهائي</text>
               <text x="2200" y="2820" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">وملزم للطرفين.</text>
             </svg>
             <div class="controls"><button onclick="window.print()">طباعة</button><button onclick="window.close()">إغلاق</button></div>
@@ -235,7 +279,7 @@ export default function ContractPDFDialog({ open, onOpenChange, contract }: Cont
         toast.success('تم فتح العقد للطباعة مع جدول اللوحات!');
         onOpenChange(false);
       } else {
-        throw new Error('فشل في فتح نافذة الطباعة. يرجى السماح بالنوافذ المنبثقة.');
+        throw new Error('فشل في فتح نافذة الطباعة. يرجى الس��اح بالنوافذ المنبثقة.');
       }
 
     } catch (error) {
@@ -265,7 +309,7 @@ export default function ContractPDFDialog({ open, onOpenChange, contract }: Cont
           ) : (
             <>
               <div className="bg-muted p-4 rounded-lg">
-                <h3 className="font-semibold mb-2">تم إنشاء العقد بالبيانات التالية:</h3>
+                <h3 className="font-semibold mb-2">تم إنشاء العقد بالبيانات ا��تا��ية:</h3>
                 <div className="text-sm space-y-1">
                   <p><strong>رقم العقد:</strong> {contract?.id || contract?.Contract_Number || 'غير محدد'}</p>
                   <p><strong>العميل:</strong> {contract?.customer_name || contract?.['Customer Name'] || 'غير محدد'}</p>
