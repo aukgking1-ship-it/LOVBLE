@@ -196,12 +196,13 @@ export default function ContractPDFDialog({ open, onOpenChange, contract }: Cont
             .c-num { text-align: center; font-weight: 700; }
             .btable a { color: #004aad; text-decoration: none; font-family: 'Doran', 'Noto Sans Arabic', Arial, sans-serif; }
 
-            /* Align right for long-text columns; others stay centered */
-            .btable td:nth-child(1), /* الاسم/الرمز */
-            .btable td:nth-child(3), /* البلدية */
-            .btable td:nth-child(4), /* المنطقة */
-            .btable td:nth-child(5)  /* أقرب معلم */
-            { text-align: right; }
+            /* توسيط كل الأعمدة في الجدول */
+            .btable td:nth-child(1),
+            .btable td:nth-child(3),
+            .btable td:nth-child(4),
+            .btable td:nth-child(5) {
+              text-align: center;
+            }
 
             @media print {
               html, body { width: 210mm !important; min-height: 297mm !important; height: auto !important; margin: 0 !important; padding: 0 !important; overflow: visible !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -241,7 +242,7 @@ export default function ContractPDFDialog({ open, onOpenChange, contract }: Cont
               <text x="1240" y="2065" font-family="Doran, sans-serif" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">في حال وقوع ظروف قاهرة تؤثر على إحدى المساحات، يتم نقل الإعلان إلى موقع بديل، ويتولى الطرف الأول</text>
               <text x="1890" y="2125" font-family="Doran, sans-serif" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">الحصول على الموافقات اللازمة من الجهات ذات العلاقة.</text>
               <text x="2235" y="2240" font-family="Doran, sans-serif" font-weight="bold" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">البند الرابع:</text>
-              <text x="1190" y="2240" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">لايجوز للطرف الثاني ال��نازل عن العقد أو التعامل مع جهات أخرى دون موافقة الطرف الأول، الذي يحتفظ بحق.</text>
+              <text x="1190" y="2240" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">لايجوز للطرف الثاني ال��نازل عن العقد أو التعامل مع جهات أخرى دون موافقة الطرف الأول، ا��ذي يحتفظ بحق.</text>
               <text x="1530" y="2300" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">استغلال المساحات في المناسبات الوطنية و الانتخابات مع تعويض الطرف الثاني بفترة بديلة.</text>
               <text x="560" y="2410" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="end" dominant-baseline="middle" style="direction: rtl; text-align: center">قيمة العقد ${contractData.price} دينار ليبي بدون طباعة، دفع عند توقيع العقد والنصف الآخر بعد</text>
               <text x="1640" y="2470" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">التركيب، وإذا تأخر السداد عن 30 يومًا يحق للطرف الأول إعادة تأجير المساحات.</text>
@@ -249,7 +250,7 @@ export default function ContractPDFDialog({ open, onOpenChange, contract }: Cont
               <text x="1150" y="2590" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">مدة العقد ${contractData.duration} يومًا تبدأ من ${contractData.startDate} وتنتهي في ${contractData.endDate}، ويجوز تجديده برضى الطرفين قبل</text>
               <text x="1800" y="2650" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">انتهائه بمدة لا تقل عن 15 يومًا وفق شروط يتم الاتفاق عليها .</text>
               <text x="2220" y="2760" font-family="Doran, sans-serif" font-weight="bold" font-size="42" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">البند السابع:</text>
-              <text x="1150" y="2760" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">في حال حدوث خلاف ب��ن الطرفين يتم حلّه وديًا، وإذا تعذر ذلك يُعين طرفان محاميان لتسوية النزاع بقرار نهائي</text>
+              <text x="1150" y="2760" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">في حال حدوث خلاف ب��ن الطرفين يتم حلّه وديًا، وإذا تعذر ذلك يُعين طرفان محا��يان لتسوية النزاع بقرار نهائي</text>
               <text x="2200" y="2820" font-family="Doran, sans-serif" font-size="46" fill="#000" text-anchor="middle" dominant-baseline="middle" style="direction: rtl; text-align: center">وملزم للطرفين.</text>
             </svg>
             <div class="controls"><button onclick="window.print()">طباعة</button><button onclick="window.close()">إغلاق</button></div>
